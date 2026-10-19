@@ -23,8 +23,8 @@ public class SettingsActivity extends Activity {
     private TextView tvVersion;
     private TextView tvFooter;
     private ScrollView scroll;
-    private String versionName = "0.0.3";
-    private int versionCode = 3;
+    private String versionName = "0.0.4";
+    private int versionCode = 4;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

@@ -132,8 +132,10 @@ public class TimerService extends Service {
                 targetWall = System.currentTimeMillis() + Math.max(60_000L, Prefs.remaining(this));
             }
             remainingMs = Math.max(0L, targetWall - System.currentTimeMillis());
+            totalMs = Math.max(totalMs, remainingMs);
         } else if (running) {
             remainingMs = Math.max(0L, Prefs.remaining(this));
+            totalMs = Math.max(totalMs, remainingMs);
         } else {
             totalMs = intervalMinutes * 60_000L;
             remainingMs = totalMs;
@@ -261,11 +263,14 @@ public class TimerService extends Service {
         intervalMinutes = Prefs.clamp(interval, 5, 180);
         windowStart = Prefs.clamp(start, 0, 1439);
         windowEnd = Prefs.clamp(end, 0, 1439);
-        totalMs = intervalMinutes * 60_000L;
-        remainingMs = totalMs;
+        long intervalMs = intervalMinutes * 60_000L;
+        totalMs = intervalMs;
+        remainingMs = intervalMs;
         paused = false;
         running = true;
-        targetWall = scheduleAfter(System.currentTimeMillis(), totalMs);
+        targetWall = scheduleAfter(System.currentTimeMillis(), intervalMs);
+        remainingMs = Math.max(0L, targetWall - System.currentTimeMillis());
+        totalMs = Math.max(intervalMs, remainingMs);
         cancelReminderNotification();
 
         Prefs.setInterval(this, intervalMinutes);
@@ -296,7 +301,8 @@ public class TimerService extends Service {
         }
         long delay = Math.max(1_000L, remainingMs);
         targetWall = scheduleAfter(System.currentTimeMillis(), delay);
-        remainingMs = delay;
+        remainingMs = Math.max(0L, targetWall - System.currentTimeMillis());
+        totalMs = Math.max(intervalMinutes * 60_000L, remainingMs);
         paused = false;
         saveState();
         ensureForeground();
@@ -327,10 +333,13 @@ public class TimerService extends Service {
     }
 
     private void restartFromNow() {
-        totalMs = intervalMinutes * 60_000L;
-        remainingMs = totalMs;
+        long intervalMs = intervalMinutes * 60_000L;
+        totalMs = intervalMs;
+        remainingMs = intervalMs;
         paused = false;
-        targetWall = scheduleAfter(System.currentTimeMillis(), totalMs);
+        targetWall = scheduleAfter(System.currentTimeMillis(), intervalMs);
+        remainingMs = Math.max(0L, targetWall - System.currentTimeMillis());
+        totalMs = Math.max(intervalMs, remainingMs);
         saveState();
         ensureForeground();
         scheduleAlarm();
@@ -344,8 +353,12 @@ public class TimerService extends Service {
         Prefs.setInterval(this, intervalMinutes);
         if (running) {
             paused = false;
-            remainingMs = totalMs;
-            targetWall = scheduleAfter(System.currentTimeMillis(), totalMs);
+            long intervalMs = intervalMinutes * 60_000L;
+            totalMs = intervalMs;
+            remainingMs = intervalMs;
+            targetWall = scheduleAfter(System.currentTimeMillis(), intervalMs);
+            remainingMs = Math.max(0L, targetWall - System.currentTimeMillis());
+            totalMs = Math.max(intervalMs, remainingMs);
             cancelReminderNotification();
             saveState();
             ensureForeground();
@@ -365,6 +378,8 @@ public class TimerService extends Service {
         if (running && !paused) {
             long delay = Math.max(1_000L, targetWall - System.currentTimeMillis());
             targetWall = scheduleAfter(System.currentTimeMillis(), delay);
+            remainingMs = Math.max(0L, targetWall - System.currentTimeMillis());
+            totalMs = Math.max(intervalMinutes * 60_000L, remainingMs);
             saveState();
             scheduleAlarm();
         } else {
@@ -389,7 +404,7 @@ public class TimerService extends Service {
             next = scheduleAfter(next, intervalMs);
         }
         targetWall = next;
-        totalMs = intervalMs;
+        totalMs = Math.max(intervalMs, Math.max(0L, targetWall - now));
         remainingMs = Math.max(0L, targetWall - now);
         saveState();
         scheduleAlarm();

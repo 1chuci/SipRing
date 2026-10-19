@@ -74,9 +74,14 @@
     <string name="ring_next_label">距离下次喝水</string>
     <string name="ring_paused_label">已暂停 · 轻点继续</string>
     <string name="ring_sub_format">每 %1$d 分钟 · %2$s</string>
+    <string name="ring_next_target_label">下次提醒</string>
+    <string name="ring_target_sub">已避开提醒时段 · 每 %1$d 分钟</string>
+    <string name="ring_target_today">今天 %1$s</string>
+    <string name="ring_target_tomorrow">明天 %1$s</string>
     <string name="cd_start">轻点开始喝水提醒，当前每 %1$d 分钟</string>
     <string name="cd_running">距离下次喝水 %1$s，轻点暂停</string>
     <string name="cd_paused">已暂停，剩余 %1$s，轻点继续</string>
+    <string name="cd_shifted">下次提醒 %1$s，轻点暂停</string>
 
     <string name="notif_channel_timer">计时状态</string>
     <string name="notif_channel_reminder">喝水提醒</string>

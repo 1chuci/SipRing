@@ -19,6 +19,7 @@ import android.view.View;
 import android.view.ViewConfiguration;
 import android.view.animation.LinearInterpolator;
 
+import java.util.Calendar;
 import java.util.Locale;
 
 /**
@@ -187,6 +188,8 @@ public class TimerRingView extends View {
             text = getContext().getString(R.string.cd_start, intervalMinutes);
         } else if (state == STATE_PAUSED) {
             text = getContext().getString(R.string.cd_paused, spokenTime(remainingMs));
+        } else if (isShifted()) {
+            text = getContext().getString(R.string.cd_shifted, targetLabel());
         } else {
             text = getContext().getString(R.string.cd_running, spokenTime(remainingMs));
         }
@@ -368,9 +371,14 @@ public class TimerRingView extends View {
 
         labelPaint.setTextSize(sp(10f));
         labelPaint.setLetterSpacing(0.08f);
+        boolean shifted = isShifted();
         if (state == STATE_PAUSED) {
             labelPaint.setColor(amber);
             canvas.drawText(getContext().getString(R.string.ring_paused_label),
+                    cx, cy - dp(38f), labelPaint);
+        } else if (shifted) {
+            labelPaint.setColor(textSecondary);
+            canvas.drawText(getContext().getString(R.string.ring_next_target_label),
                     cx, cy - dp(38f), labelPaint);
         } else {
             labelPaint.setColor(textSecondary);
@@ -378,22 +386,56 @@ public class TimerRingView extends View {
                     cx, cy - dp(38f), labelPaint);
         }
 
-        float timeSize = timeText.length() >= 7 ? sp(45f) : sp(58f);
+        String mainText = shifted ? targetLabel() : timeText;
+        float timeSize = shifted ? sp(44f) : sp(58f);
         textPaint.setTypeface(Typeface.create("sans-serif-light", Typeface.NORMAL));
         textPaint.setTextSize(timeSize);
         textPaint.setColor(textPrimary);
         textPaint.setLetterSpacing(0.01f);
+
+        // Long shifted countdowns (for example "13:15:00") must never spill
+        // outside the glass disc or get clipped at large system font scales.
+        float maxTextWidth = innerRadius * 1.78f;
+        float measured = textPaint.measureText(mainText);
+        if (measured > maxTextWidth) {
+            timeSize = Math.max(sp(28f), timeSize * maxTextWidth / measured);
+            textPaint.setTextSize(timeSize);
+        }
+
         textPaint.setShadowLayer(dp(13f), 0f, 0f, 0x445AE8C8);
-        canvas.drawText(timeText, cx, cy + timeSize * 0.35f, textPaint);
+        canvas.drawText(mainText, cx, cy + timeSize * 0.35f, textPaint);
         textPaint.setShadowLayer(0f, 0f, 0f, Color.TRANSPARENT);
         textPaint.setLetterSpacing(0f);
 
         subPaint.setTextSize(sp(9.5f));
         subPaint.setColor(textFaint);
-        String sub = getContext().getString(
-                R.string.ring_sub_format, intervalMinutes, windowLabel);
+        String sub;
+        if (shifted) {
+            sub = getContext().getString(R.string.ring_target_sub, intervalMinutes);
+        } else {
+            sub = getContext().getString(
+                    R.string.ring_sub_format, intervalMinutes, windowLabel);
+        }
         canvas.drawText(sub, cx, cy + dp(58f), subPaint);
         labelPaint.setLetterSpacing(0f);
+    }
+
+    private boolean isShifted() {
+        return state != STATE_IDLE
+                && remainingMs > intervalMinutes * 60_000L + 60_000L;
+    }
+
+    private String targetLabel() {
+        long targetMs = System.currentTimeMillis() + remainingMs;
+        Calendar target = Calendar.getInstance();
+        target.setTimeInMillis(targetMs);
+        Calendar now = Calendar.getInstance();
+        boolean sameDay = target.get(Calendar.YEAR) == now.get(Calendar.YEAR)
+                && target.get(Calendar.DAY_OF_YEAR) == now.get(Calendar.DAY_OF_YEAR);
+        String clock = String.format(Locale.CHINA, "%02d:%02d",
+                target.get(Calendar.HOUR_OF_DAY), target.get(Calendar.MINUTE));
+        return getContext().getString(
+                sameDay ? R.string.ring_target_today : R.string.ring_target_tomorrow, clock);
     }
 
     private void drawDrop(Canvas canvas, float centerX, float centerY) {

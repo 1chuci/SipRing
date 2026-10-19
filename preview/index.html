@@ -137,6 +137,7 @@
     text-shadow: 0 0 22px rgba(90,232,200,.24);
   }
   .center-run .time.long { font-size: 45px; }
+  .center-run .time.target { font-size: 44px; letter-spacing: .02em; }
   .center-run .sub { margin-top: 13px; font-size: 9.5px; color: var(--faint); letter-spacing: .02em; }
   .ring-wrap.running .center-idle { display: none; }
   .ring-wrap.running .center-run { display: flex; }
@@ -500,7 +501,7 @@
       <div class="privacy">无网络权限 · 不收集任何数据</div>
     </section>
 
-    <div class="footer">v0.0.3 · MADE FOR ONE SMALL HABIT</div>
+    <div class="footer">v0.0.4 · MADE FOR ONE SMALL HABIT</div>
   </main>
 
   <div class="settings-screen" id="settingsScreen">
@@ -545,7 +546,7 @@
         </div>
         <div>
           <div class="about-name">SipRing</div>
-          <div class="about-version">版本 0.0.3 · versionCode 3</div>
+          <div class="about-version">版本 0.0.4 · versionCode 4</div>
         </div>
       </div>
       <div class="privacy-title">用户隐私声明</div>
@@ -556,7 +557,7 @@
       </div>
     </section>
 
-    <div class="settings-footer">SipRing v0.0.3 · LOCAL ONLY</div>
+    <div class="settings-footer">SipRing v0.0.4 · LOCAL ONLY</div>
   </div>
 
   <div class="navbar"><i></i></div>
@@ -686,11 +687,25 @@
 
     ring.classList.toggle('running', state.running);
     if (state.running) {
-      statusLabel.textContent = state.paused ? '已暂停 · 轻点继续' : '距离下次喝水';
+      const shifted = state.remainingMs > state.interval * 60000 + 60000;
+      const target = new Date(Date.now() + state.remainingMs);
+      const clock = pad(target.getHours()) + ':' + pad(target.getMinutes());
+      const today = new Date();
+      const sameDay = target.getFullYear() === today.getFullYear()
+        && target.getMonth() === today.getMonth()
+        && target.getDate() === today.getDate();
+      statusLabel.textContent = state.paused
+        ? '已暂停 · 轻点继续'
+        : (shifted ? '下次提醒' : '距离下次喝水');
       statusLabel.classList.toggle('paused', state.paused);
-      timeText.textContent = countdown(state.remainingMs);
-      timeText.classList.toggle('long', timeText.textContent.length >= 7);
-      subText.textContent = '每 ' + state.interval + ' 分钟 · ' + windowLabel();
+      timeText.textContent = shifted
+        ? (sameDay ? '今天 ' + clock : '明天 ' + clock)
+        : countdown(state.remainingMs);
+      timeText.classList.toggle('long', !shifted && timeText.textContent.length >= 7);
+      timeText.classList.toggle('target', shifted);
+      subText.textContent = shifted
+        ? '已避开提醒时段 · 每 ' + state.interval + ' 分钟'
+        : '每 ' + state.interval + ' 分钟 · ' + windowLabel();
       hint.textContent = state.paused
         ? '已暂停 · 轻点圆环继续'
         : '轻点圆环暂停 · 结束本次后需重新开始';
@@ -939,5 +954,7 @@
 </script>
 </body>
 </html>
+
+
 
 
