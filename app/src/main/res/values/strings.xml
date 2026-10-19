@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">SipRing</string>
+    <string name="header_subtitle">喝水提醒</string>
+    <string name="version_format">v%1$s</string>
+    <string name="tagline">把喝水，变成一件准时的小事。</string>
+
+    <string name="hero_hint_idle">轻点圆环开始 · 运行中轻点可暂停</string>
+    <string name="hero_hint_running">轻点圆环暂停 · 结束本次后需重新开始</string>
+    <string name="hero_hint_paused">已暂停 · 轻点圆环继续</string>
+    <string name="stop">结束本次</string>
+
+    <string name="interval_title">提醒间隔</string>
+    <string name="interval_subtitle">到点后会弹出通知并震动</string>
+    <string name="interval_every">每 %1$d 分钟</string>
+    <string name="interval_custom">自定义</string>
+    <string name="interval_dialog_title">自定义提醒间隔</string>
+    <string name="interval_dialog_hint">5 – 180 分钟</string>
+    <string name="interval_dialog_note">建议 30–60 分钟。少量多次，比一次猛喝更好。</string>
+    <string name="save">保存</string>
+    <string name="cancel">取消</string>
+    <string name="manage">管理</string>
+    <string name="invalid_interval">请输入 5 到 180 之间的分钟数</string>
+
+    <string name="window_title">提醒时段</string>
+    <string name="window_subtitle">只在此时段内提醒，避免夜里被打扰</string>
+    <string name="window_all_day">全天</string>
+    <string name="window_to">至</string>
+    <string name="window_summary">%1$s – %2$s</string>
+
+    <string name="permission_title">保活与权限</string>
+    <string name="permission_subtitle">允许后台高耗电，提醒才不容易被系统拦下</string>
+    <string name="permission_notify">通知权限</string>
+    <string name="permission_notify_on">已开启</string>
+    <string name="permission_notify_off">未开启，提醒不会显示</string>
+    <string name="permission_notify_action">去开启</string>
+    <string name="permission_battery">电池优化</string>
+    <string name="permission_battery_on">已允许高耗电</string>
+    <string name="permission_battery_off">仍受系统限制</string>
+    <string name="permission_battery_action">去允许</string>
+    <string name="permission_alarm">精准闹钟</string>
+    <string name="permission_alarm_on">已允许精准提醒</string>
+    <string name="permission_alarm_off">使用近似提醒</string>
+    <string name="permission_alarm_na">系统默认</string>
+    <string name="permission_alarm_action">去允许</string>
+    <string name="permission_footnote">划掉后台后提醒会停止，这是设计行为。小米 / OPPO / vivo 等机型建议同时在系统设置中允许自启动。</string>
+    <string name="privacy_note">无网络权限 · 不收集任何数据</string>
+    <string name="footer_version">v%1$s · MADE FOR ONE SMALL HABIT</string>
+
+    <string name="ring_start">开始</string>
+    <string name="ring_tap_start">TAP TO START</string>
+    <string name="ring_next_label">距离下次喝水</string>
+    <string name="ring_paused_label">已暂停 · 轻点继续</string>
+    <string name="ring_sub_format">每 %1$d 分钟 · %2$s</string>
+    <string name="cd_start">轻点开始喝水提醒，当前每 %1$d 分钟</string>
+    <string name="cd_running">距离下次喝水 %1$s，轻点暂停</string>
+    <string name="cd_paused">已暂停，剩余 %1$s，轻点继续</string>
+
+    <string name="notif_channel_timer">计时状态</string>
+    <string name="notif_channel_reminder">喝水提醒</string>
+    <string name="notif_channel_timer_desc">SipRing 计时时显示的常驻通知</string>
+    <string name="notif_channel_reminder_desc">到点提醒你喝水</string>
+    <string name="notif_timer_title">SipRing 正在计时</string>
+    <string name="notif_timer_running">每 %1$d 分钟 · %2$s · 点按暂停</string>
+    <string name="notif_timer_paused">已暂停 · 点按继续</string>
+    <string name="notif_timer_pause">暂停</string>
+    <string name="notif_timer_resume">继续</string>
+    <string name="notif_timer_stop">结束</string>
+    <string name="notif_reminder_title">该喝水啦 💧</string>
+    <string name="notif_reminder_text">放下手里的事，喝几口水吧。</string>
+    <string name="notif_reminder_big">补充水分的时间到了。下一次提醒：%1$s。</string>
+    <string name="notif_next_minutes">%1$d 分钟后</string>
+    <string name="notif_next_today">今天 %1$s</string>
+    <string name="notif_next_tomorrow">明天 %1$s</string>
+    <string name="notif_drank">我喝了</string>
+
+    <string name="toast_started">已开始 · 每 %1$d 分钟提醒</string>
+    <string name="toast_paused">已暂停</string>
+    <string name="toast_resumed">已继续</string>
+    <string name="toast_stopped">已结束</string>
+    <string name="toast_notify_needed">请允许通知，否则喝水提醒不会显示</string>
+    <string name="toast_interval_changed">间隔已更新，重新计时</string>
+    <string name="toast_window_updated">提醒时段已更新</string>
+    <string name="toast_start_failed">无法启动提醒服务，请稍后再试</string>
+
+    <string name="time_picker_start">选择开始时间</string>
+    <string name="time_picker_end">选择结束时间</string>
+    <string name="notif_permission_title">需要通知权限</string>
+    <string name="notif_permission_message">没有通知权限，SipRing 无法提醒你喝水。请允许通知。</string>
+    <string name="go_settings">去设置</string>
+    <string name="later">稍后</string>
+</resources>

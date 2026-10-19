@@ -1,0 +1,752 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>SipRing · 互动效果预览</title>
+<style>
+  :root {
+    --bg: #041216;
+    --bg-2: #071e26;
+    --surface: #0c252d;
+    --stroke: #1b4852;
+    --stroke-soft: #12343c;
+    --aqua: #5ae8c8;
+    --cyan: #63c9ff;
+    --mint: #c8ffe8;
+    --text: #edfcf9;
+    --dim: #8bb2b8;
+    --faint: #5e858c;
+    --amber: #ffc66d;
+    --danger: #ff9d8c;
+  }
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  html, body { height: 100%; }
+  body {
+    margin: 0;
+    min-height: 100vh;
+    background: #02090c;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: "Segoe UI", "Noto Sans SC", "Microsoft YaHei", system-ui, sans-serif;
+    color: var(--text);
+    overflow: hidden;
+  }
+  .phone {
+    position: relative;
+    width: 390px;
+    height: 844px;
+    background: var(--bg);
+    border-radius: 46px;
+    overflow: hidden;
+    box-shadow: 0 30px 90px rgba(0,0,0,.65), 0 0 0 1px rgba(120,220,210,.08);
+    isolation: isolate;
+  }
+  .aurora { position: absolute; inset: 0; z-index: 0; pointer-events: none; }
+  .aurora::before {
+    content: ""; position: absolute; width: 520px; height: 520px; left: -180px; top: -160px;
+    background: radial-gradient(circle, rgba(31,119,120,.42) 0%, rgba(27,75,82,.16) 48%, transparent 70%);
+    border-radius: 50%;
+  }
+  .aurora::after {
+    content: ""; position: absolute; width: 430px; height: 430px; right: -210px; top: 210px;
+    background: radial-gradient(circle, rgba(30,93,134,.33) 0%, rgba(19,51,85,.12) 52%, transparent 72%);
+    border-radius: 50%;
+  }
+  .grain {
+    position: absolute; inset: 0; z-index: 0; opacity: .5; pointer-events: none;
+    background-image: radial-gradient(rgba(143,232,222,.16) .7px, transparent .8px);
+    background-size: 38px 38px;
+    mask-image: linear-gradient(to bottom, #000, transparent 70%);
+  }
+  .statusbar {
+    position: absolute; z-index: 5; top: 0; left: 0; right: 0; height: 38px;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 0 24px; font-size: 11px; letter-spacing: .04em; color: #d8efec;
+    font-weight: 600;
+  }
+  .status-icons { display: flex; align-items: center; gap: 6px; opacity: .92; }
+  .signal { display: flex; align-items: flex-end; gap: 2px; height: 10px; }
+  .signal i { width: 2.5px; background: #d8efec; border-radius: 1px; }
+  .signal i:nth-child(1) { height: 4px; } .signal i:nth-child(2) { height: 6px; }
+  .signal i:nth-child(3) { height: 8px; } .signal i:nth-child(4) { height: 10px; }
+  .battery { width: 19px; height: 9px; border: 1px solid rgba(216,239,236,.8); border-radius: 2.5px; position: relative; }
+  .battery::after { content: ""; position: absolute; right: -3px; top: 2px; width: 2px; height: 4px; background: rgba(216,239,236,.8); border-radius: 0 1px 1px 0; }
+  .battery::before { content: ""; position: absolute; left: 1.5px; top: 1.5px; bottom: 1.5px; width: 11px; background: #d8efec; border-radius: 1px; }
+  .wifi { width: 13px; height: 10px; position: relative; }
+  .wifi svg { width: 13px; height: 10px; display: block; }
+
+  .app {
+    position: absolute; z-index: 2; inset: 38px 0 24px 0;
+    overflow-y: auto; overflow-x: hidden; padding: 8px 22px 40px;
+    scrollbar-width: none; -ms-overflow-style: none;
+  }
+  .app::-webkit-scrollbar { display: none; }
+
+  .header { display: flex; align-items: center; }
+  .logo {
+    width: 36px; height: 36px; border-radius: 50%; flex: 0 0 auto;
+    background: linear-gradient(145deg, #16444e, #092128);
+    border: 1px solid #2c6b73;
+    display: grid; place-items: center;
+  }
+  .logo svg { width: 19px; height: 22px; }
+  .brand { margin-left: 11px; }
+  .brand-name { font-size: 21px; line-height: 1; letter-spacing: .04em; font-weight: 300; }
+  .brand-sub { margin-top: 3px; font-size: 8px; letter-spacing: .28em; color: var(--faint); font-weight: 600; }
+  .version {
+    margin-left: auto; padding: 6px 11px; border: 1px solid #1b444d; border-radius: 999px;
+    background: #0e2a32; color: var(--dim); font-size: 9px; letter-spacing: .08em; font-weight: 600;
+  }
+  .tagline { margin-top: 20px; color: var(--dim); font-size: 13px; letter-spacing: .02em; }
+
+  .ring-wrap {
+    position: relative; width: 296px; height: 296px; margin: 8px auto 0;
+    cursor: pointer; user-select: none; touch-action: manipulation;
+    transition: transform .09s ease;
+  }
+  .ring-wrap:active { transform: scale(.974); }
+  .ring-wrap svg.ring-svg { display: block; width: 296px; height: 296px; overflow: visible; }
+  .ring-center {
+    position: absolute; inset: 0; display: flex; flex-direction: column;
+    align-items: center; justify-content: center; pointer-events: none;
+  }
+  .center-idle { display: flex; flex-direction: column; align-items: center; margin-top: 2px; }
+  .center-idle .drop { width: 22px; height: 28px; margin-bottom: 11px; filter: drop-shadow(0 0 12px rgba(90,232,200,.35)); }
+  .center-idle .big { font-size: 37px; font-weight: 300; line-height: 1; letter-spacing: .06em; }
+  .center-idle .tiny { margin-top: 13px; font-size: 8.5px; letter-spacing: .18em; color: var(--faint); font-weight: 600; }
+  .center-run { display: none; flex-direction: column; align-items: center; width: 100%; }
+  .center-run .label { font-size: 10px; letter-spacing: .08em; color: var(--dim); font-weight: 600; }
+  .center-run .label.paused { color: var(--amber); }
+  .center-run .time {
+    margin-top: 8px; font-size: 58px; font-weight: 200; line-height: 1;
+    letter-spacing: .005em; color: var(--text); font-variant-numeric: tabular-nums;
+    text-shadow: 0 0 22px rgba(90,232,200,.24);
+  }
+  .center-run .time.long { font-size: 45px; }
+  .center-run .sub { margin-top: 13px; font-size: 9.5px; color: var(--faint); letter-spacing: .02em; }
+  .ring-wrap.running .center-idle { display: none; }
+  .ring-wrap.running .center-run { display: flex; }
+
+  .hint { margin-top: 2px; text-align: center; font-size: 11px; color: var(--faint); letter-spacing: .02em; }
+  .stop-btn {
+    display: none; margin: 12px auto 0; padding: 9px 18px; border-radius: 999px;
+    background: transparent; border: 1px solid #2b5b65; color: var(--dim);
+    font-family: inherit; font-size: 11px; font-weight: 600; letter-spacing: .03em;
+    cursor: pointer;
+  }
+  .ring-wrap.running + .hint + .stop-btn { display: block; }
+  .stop-btn:active { background: rgba(255,255,255,.04); }
+
+  .card {
+    margin-top: 16px; padding: 16px 18px 17px; border-radius: 24px;
+    border: 1px solid #1a444d;
+    background: linear-gradient(145deg, #12313a 0%, #0a2028 78%);
+    box-shadow: 0 12px 34px rgba(0,0,0,.14), inset 0 1px 0 rgba(255,255,255,.025);
+  }
+  .card + .card { margin-top: 12px; }
+  .card-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+  .card-title { font-size: 15px; font-weight: 600; letter-spacing: .01em; }
+  .card-value { font-size: 12px; color: var(--aqua); font-weight: 600; }
+  .card-sub { margin-top: 4px; font-size: 10.5px; color: var(--faint); }
+  .chips { display: flex; gap: 7px; margin-top: 14px; overflow-x: auto; padding-bottom: 1px; scrollbar-width: none; }
+  .chips::-webkit-scrollbar { display: none; }
+  .chip {
+    flex: 0 0 auto; height: 36px; min-width: 44px; padding: 0 13px; border-radius: 999px;
+    background: #0c262e; border: 1px solid #1a414a; color: #b6d6d9;
+    font-family: inherit; font-size: 12px; font-weight: 600; cursor: pointer;
+    transition: background .18s ease, color .18s ease, border-color .18s ease;
+  }
+  .chip.selected {
+    background: linear-gradient(90deg, #63c9ff, #5ae8c8);
+    border-color: transparent; color: #04231e;
+    box-shadow: 0 0 20px rgba(90,232,200,.16);
+  }
+  .chip:active { transform: scale(.97); }
+
+  .times { display: flex; align-items: center; margin-top: 13px; gap: 10px; }
+  .time-pill {
+    flex: 1; height: 48px; border-radius: 16px; border: 1px solid #1b444d;
+    background: #0a222a; color: var(--text); font-family: inherit;
+    font-size: 19px; font-weight: 300; letter-spacing: .06em; cursor: pointer;
+    font-variant-numeric: tabular-nums;
+  }
+  .time-pill:active { background: #0d2a33; }
+  .time-sep { font-size: 11px; color: var(--faint); }
+
+  .perm-list { margin-top: 8px; }
+  .perm-row {
+    display: flex; align-items: center; padding: 9px 0; cursor: pointer;
+    border-radius: 10px;
+  }
+  .perm-row + .perm-row { border-top: 1px solid var(--stroke-soft); }
+  .perm-icon { width: 19px; height: 19px; flex: 0 0 auto; color: var(--dim); }
+  .perm-icon svg { width: 19px; height: 19px; display: block; }
+  .perm-text { margin-left: 12px; flex: 1; min-width: 0; }
+  .perm-title { font-size: 13px; color: var(--text); }
+  .perm-state { margin-top: 2px; font-size: 10px; color: var(--faint); }
+  .perm-state.on { color: var(--aqua); }
+  .perm-state.off { color: var(--amber); }
+  .perm-action { font-size: 11px; font-weight: 600; color: var(--aqua); margin-right: 2px; }
+  .perm-chevron { width: 15px; height: 15px; color: var(--faint); }
+  .perm-chevron svg { width: 15px; height: 15px; display: block; }
+  .footnote { margin-top: 7px; font-size: 10px; line-height: 1.55; color: var(--faint); }
+  .privacy { margin-top: 10px; font-size: 9.5px; letter-spacing: .04em; color: var(--faint); font-weight: 600; }
+  .footer { margin-top: 24px; text-align: center; font-size: 9px; letter-spacing: .16em; color: var(--faint); font-weight: 600; }
+
+  .navbar { position: absolute; z-index: 5; left: 0; right: 0; bottom: 0; height: 24px; display: grid; place-items: center; }
+  .navbar i { width: 112px; height: 4px; border-radius: 999px; background: rgba(219,244,240,.28); }
+
+  .toast {
+    position: absolute; z-index: 8; left: 18px; right: 18px; top: 46px;
+    padding: 14px 16px; border-radius: 18px; border: 1px solid rgba(90,232,200,.3);
+    background: rgba(10,36,43,.96); box-shadow: 0 16px 38px rgba(0,0,0,.4);
+    transform: translateY(-18px); opacity: 0; pointer-events: none;
+    transition: opacity .25s ease, transform .25s ease;
+    backdrop-filter: blur(14px);
+  }
+  .toast.show { opacity: 1; transform: translateY(0); }
+  .toast b { display: block; font-size: 14px; margin-bottom: 3px; }
+  .toast span { font-size: 11px; color: var(--dim); }
+
+  .modal-backdrop {
+    position: absolute; z-index: 10; inset: 0; background: rgba(1,8,10,.7);
+    display: flex; align-items: center; justify-content: center; padding: 28px;
+    backdrop-filter: blur(5px);
+  }
+  .modal-backdrop[hidden] { display: none; }
+  .modal {
+    width: 100%; padding: 24px; border-radius: 28px; border: 1px solid #24515b;
+    background: linear-gradient(145deg, #102e37, #081c23);
+    box-shadow: 0 24px 80px rgba(0,0,0,.6);
+  }
+  .modal h3 { margin: 0; font-size: 18px; font-weight: 600; }
+  .modal p { margin: 6px 0 0; font-size: 11px; line-height: 1.6; color: var(--faint); }
+  .modal input {
+    width: 100%; height: 60px; margin-top: 17px; border-radius: 14px;
+    border: 1px solid #1e4a54; background: #071a20; color: var(--text);
+    text-align: center; font-family: inherit; font-size: 26px; font-weight: 300;
+    outline: none; letter-spacing: .04em;
+  }
+  .modal input[type="time"] { font-size: 24px; }
+  .modal input:focus { border-color: rgba(90,232,200,.55); box-shadow: 0 0 0 3px rgba(90,232,200,.08); }
+  .modal-actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 18px; }
+  .modal-actions button {
+    border: 0; background: transparent; padding: 9px 14px; border-radius: 12px;
+    font-family: inherit; font-size: 12px; font-weight: 600; cursor: pointer;
+  }
+  .modal-actions .ghost { color: var(--dim); }
+  .modal-actions .primary { color: var(--aqua); }
+  .modal-actions button:active { background: rgba(255,255,255,.05); }
+
+  body.shot { justify-content: flex-start; align-items: flex-start; background: var(--bg); }
+  body.shot .phone { width: 390px; height: 844px; border-radius: 0; box-shadow: none; }
+  body.shot .statusbar { height: 36px; }
+  body.shot .app { inset: 36px 0 22px 0; }
+  body.shot .navbar { height: 22px; }
+  @media (max-width: 520px) {
+    .phone { width: 100vw; height: 100vh; border-radius: 0; box-shadow: none; }
+  }
+</style>
+</head>
+<body>
+<div class="phone" id="phone">
+  <div class="aurora"></div>
+  <div class="grain"></div>
+
+  <div class="statusbar">
+    <span>19:06</span>
+    <div class="status-icons">
+      <div class="signal"><i></i><i></i><i></i><i></i></div>
+      <div class="wifi">
+        <svg viewBox="0 0 16 12" fill="none">
+          <path d="M1.2 3.6C3.1 1.9 5.4 1 8 1s4.9.9 6.8 2.6" stroke="#d8efec" stroke-width="1.3" stroke-linecap="round"/>
+          <path d="M3.5 6.1C4.7 5 6.2 4.5 8 4.5s3.3.5 4.5 1.6" stroke="#d8efec" stroke-width="1.3" stroke-linecap="round"/>
+          <path d="M5.9 8.6c.6-.5 1.3-.8 2.1-.8s1.5.3 2.1.8" stroke="#d8efec" stroke-width="1.3" stroke-linecap="round"/>
+          <circle cx="8" cy="10.8" r=".9" fill="#d8efec"/>
+        </svg>
+      </div>
+      <div class="battery"></div>
+    </div>
+  </div>
+
+  <main class="app">
+    <header class="header">
+      <div class="logo">
+        <svg viewBox="0 0 24 26" fill="none">
+          <path d="M12 1.5C12 1.5 4.2 10.4 4.2 16.1c0 4.4 3.5 7.9 7.8 7.9s7.8-3.5 7.8-7.9C19.8 10.4 12 1.5 12 1.5Z" fill="#5ae8c8"/>
+          <path d="M8.8 15.1c0 2.5 1.4 4 3.4 4.4-2 .6-4.2-.7-4.2-3.3 0-2.1 1.4-5 2.6-6.6-1.2 2.4-1.8 4.1-1.8 5.5Z" fill="#c8ffe8" fill-opacity=".55"/>
+        </svg>
+      </div>
+      <div class="brand">
+        <div class="brand-name">SipRing</div>
+        <div class="brand-sub">喝水提醒</div>
+      </div>
+      <div class="version">v0.0.1</div>
+    </header>
+
+    <div class="tagline">把喝水，变成一件准时的小事。</div>
+
+    <div class="ring-wrap" id="ring">
+      <svg class="ring-svg" viewBox="0 0 296 296">
+        <defs>
+          <radialGradient id="bloom" cx="50%" cy="50%" r="50%">
+            <stop offset="0" stop-color="#2f7c82" stop-opacity=".30"/>
+            <stop offset=".58" stop-color="#1c4c53" stop-opacity=".10"/>
+            <stop offset="1" stop-color="#000" stop-opacity="0"/>
+          </radialGradient>
+          <linearGradient id="arcGrad" x1="40" y1="40" x2="256" y2="256" gradientUnits="userSpaceOnUse">
+            <stop offset="0" stop-color="#63c9ff"/>
+            <stop offset=".45" stop-color="#5ae8c8"/>
+            <stop offset=".74" stop-color="#c8ffe8"/>
+            <stop offset="1" stop-color="#5ae8c8"/>
+          </linearGradient>
+          <radialGradient id="disc" cx="42%" cy="38%" r="72%">
+            <stop offset="0" stop-color="#123b44"/>
+            <stop offset=".62" stop-color="#0a242c"/>
+            <stop offset="1" stop-color="#071b22"/>
+          </radialGradient>
+          <linearGradient id="water" x1="148" y1="40" x2="148" y2="256" gradientUnits="userSpaceOnUse">
+            <stop offset="0" stop-color="#43d8c4" stop-opacity=".30"/>
+            <stop offset=".6" stop-color="#1f8c89" stop-opacity=".16"/>
+            <stop offset="1" stop-color="#0b4a4d" stop-opacity=".04"/>
+          </linearGradient>
+          <clipPath id="innerClip"><circle cx="148" cy="148" r="111"/></clipPath>
+          <filter id="glow" x="-50%" y="-50%" width="200%" height="200%">
+            <feGaussianBlur stdDeviation="7"/>
+          </filter>
+        </defs>
+
+        <circle cx="148" cy="148" r="154" fill="url(#bloom)"/>
+        <g id="ticks" stroke="#4c8b93"></g>
+
+        <circle cx="148" cy="148" r="128" fill="none" stroke="#163b42" stroke-width="9"/>
+        <circle id="glowArc" cx="148" cy="148" r="128" fill="none" stroke="url(#arcGrad)" stroke-width="20"
+                stroke-linecap="round" transform="rotate(-90 148 148)" opacity=".18" filter="url(#glow)"/>
+        <circle id="progressArc" cx="148" cy="148" r="128" fill="none" stroke="url(#arcGrad)" stroke-width="9"
+                stroke-linecap="round" transform="rotate(-90 148 148)"/>
+        <circle cx="148" cy="148" r="111" fill="url(#disc)"/>
+        <g clip-path="url(#innerClip)">
+          <path id="waterFill" fill="url(#water)"/>
+          <path id="wave1" fill="none" stroke="#5ae8c8" stroke-width="1.2" opacity=".34"/>
+          <path id="wave2" fill="none" stroke="#5ae8c8" stroke-width="1.2" opacity=".16"/>
+        </g>
+        <circle cx="148" cy="148" r="111" fill="none" stroke="#2c6570" stroke-opacity=".47" stroke-width="1"/>
+        <circle id="leadDotHalo" cx="148" cy="20" r="9" fill="#5ae8c8" opacity=".22"/>
+        <circle id="leadDot" cx="148" cy="20" r="3.4" fill="#5ae8c8"/>
+      </svg>
+
+      <div class="ring-center">
+        <div class="center-idle">
+          <svg class="drop" viewBox="0 0 24 28" fill="none">
+            <path d="M12 1.4C12 1.4 3.4 11.2 3.4 17.2c0 4.8 3.9 8.7 8.6 8.7s8.6-3.9 8.6-8.7C20.6 11.2 12 1.4 12 1.4Z" fill="#5ae8c8" fill-opacity=".86"/>
+            <circle cx="9.1" cy="16.4" r="2.1" fill="#c8ffe8" fill-opacity=".58"/>
+          </svg>
+          <div class="big">开始</div>
+          <div class="tiny">TAP TO START</div>
+        </div>
+        <div class="center-run">
+          <div class="label" id="statusLabel">距离下次喝水</div>
+          <div class="time" id="timeText">30:00</div>
+          <div class="sub" id="subText">每 30 分钟 · 08:00 – 22:00</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="hint" id="hint">轻点圆环开始 · 运行中轻点可暂停</div>
+    <button class="stop-btn" id="stopBtn">结束本次</button>
+
+    <section class="card">
+      <div class="card-head">
+        <span class="card-title">提醒间隔</span>
+        <span class="card-value" id="intervalSummary">每 30 分钟</span>
+      </div>
+      <div class="card-sub">到点后会弹出通知并震动</div>
+      <div class="chips" id="chips">
+        <button class="chip" data-min="15">15</button>
+        <button class="chip selected" data-min="30">30</button>
+        <button class="chip" data-min="45">45</button>
+        <button class="chip" data-min="60">60</button>
+        <button class="chip" data-min="90">90</button>
+        <button class="chip" data-min="custom" id="customChip">自定义</button>
+      </div>
+    </section>
+
+    <section class="card">
+      <div class="card-head">
+        <span class="card-title">提醒时段</span>
+        <span class="card-value" id="windowSummary">08:00 – 22:00</span>
+      </div>
+      <div class="card-sub">只在此时段内提醒，避免夜里被打扰</div>
+      <div class="times">
+        <button class="time-pill" id="startTime">08:00</button>
+        <span class="time-sep">至</span>
+        <button class="time-pill" id="endTime">22:00</button>
+      </div>
+    </section>
+
+    <section class="card">
+      <div class="card-title">保活与权限</div>
+      <div class="card-sub">允许后台高耗电，提醒才不容易被系统拦下</div>
+      <div class="perm-list">
+        <div class="perm-row" data-perm="notify">
+          <div class="perm-icon">
+            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 22c1.1 0 2-.9 2-2h-4c0 1.1.9 2 2 2zm6-6v-5c0-3.07-1.63-5.64-4.5-6.32V4c0-.83-.67-1.5-1.5-1.5S10.5 3.17 10.5 4v.68C7.64 5.36 6 7.92 6 11v5l-2 2v1h16v-1l-2-2z"/></svg>
+          </div>
+          <div class="perm-text"><div class="perm-title">通知权限</div><div class="perm-state on" id="notifyState">已开启</div></div>
+          <span class="perm-action" id="notifyAction">管理</span>
+          <div class="perm-chevron"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M9 6l6 6-6 6-1.4-1.4 4.6-4.6-4.6-4.6z"/></svg></div>
+        </div>
+        <div class="perm-row" data-perm="battery">
+          <div class="perm-icon">
+            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M15.67 4H14V2h-4v2H8.33C7.6 4 7 4.6 7 5.33v15.33C7 21.4 7.6 22 8.33 22h7.33c.73 0 1.33-.6 1.33-1.33V5.33C17 4.6 16.4 4 15.67 4zM13 18h-2v-2h2v2zm0-4h-2v-5h2v5z"/></svg>
+          </div>
+          <div class="perm-text"><div class="perm-title">电池优化</div><div class="perm-state off" id="batteryState">仍受系统限制</div></div>
+          <span class="perm-action" id="batteryAction">去允许</span>
+          <div class="perm-chevron"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M9 6l6 6-6 6-1.4-1.4 4.6-4.6-4.6-4.6z"/></svg></div>
+        </div>
+        <div class="perm-row" data-perm="alarm">
+          <div class="perm-icon">
+            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 4a8 8 0 1 0 0 16 8 8 0 1 0 0-16zm0 2a6 6 0 1 1 0 12 6 6 0 1 1 0-12zm-1 2h2v5h-2zm0 7h2v2h-2z"/><path d="M7 1L3 5l1.4 1.4 4-4zM17 1l-1.4 1.4 4 4L21 5z"/></svg>
+          </div>
+          <div class="perm-text"><div class="perm-title">精准闹钟</div><div class="perm-state on" id="alarmState">已允许精准提醒</div></div>
+          <span class="perm-action" id="alarmAction">管理</span>
+          <div class="perm-chevron"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M9 6l6 6-6 6-1.4-1.4 4.6-4.6-4.6-4.6z"/></svg></div>
+        </div>
+      </div>
+      <div class="footnote">划掉后台后提醒会停止，这是设计行为。小米 / OPPO / vivo 等机型建议同时在系统设置中允许自启动。</div>
+      <div class="privacy">无网络权限 · 不收集任何数据</div>
+    </section>
+
+    <div class="footer">v0.0.1 · MADE FOR ONE SMALL HABIT</div>
+  </main>
+
+  <div class="navbar"><i></i></div>
+
+  <div class="toast" id="toast">
+    <b>该喝水啦 💧</b>
+    <span>放下手里的事，喝几口水吧。</span>
+  </div>
+
+  <div class="modal-backdrop" id="customModal" hidden>
+    <div class="modal">
+      <h3>自定义提醒间隔</h3>
+      <input id="customInput" type="number" min="5" max="180" inputmode="numeric" value="30" aria-label="提醒间隔分钟数">
+      <p>输入 5 – 180 分钟。建议 30–60 分钟，少量多次比一次猛喝更好。</p>
+      <div class="modal-actions">
+        <button class="ghost" data-close="customModal">取消</button>
+        <button class="primary" id="customSave">保存</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal-backdrop" id="timeModal" hidden>
+    <div class="modal">
+      <h3 id="timeModalTitle">选择开始时间</h3>
+      <input id="timeInput" type="time" value="08:00">
+      <p>提醒只会在设定的时段内发生，避免夜里被打扰。</p>
+      <div class="modal-actions">
+        <button class="ghost" data-close="timeModal">取消</button>
+        <button class="primary" id="timeSave">保存</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  const $ = (id) => document.getElementById(id);
+  const params = new URLSearchParams(location.search);
+  const R = 128;
+  const CIRC = 2 * Math.PI * R;
+  const INNER_R = 111;
+  const CENTER = 148;
+
+  const state = {
+    interval: parseInt(params.get('interval') || '30', 10),
+    windowStart: 8 * 60,
+    windowEnd: 22 * 60,
+    running: false,
+    paused: false,
+    totalMs: 0,
+    remainingMs: 0,
+    endAt: 0,
+    timeTarget: null,
+  };
+  state.totalMs = state.interval * 60000;
+  state.remainingMs = state.totalMs;
+
+  const ring = $('ring');
+  const progressArc = $('progressArc');
+  const glowArc = $('glowArc');
+  const leadDot = $('leadDot');
+  const leadDotHalo = $('leadDotHalo');
+  const waterFill = $('waterFill');
+  const wave1 = $('wave1');
+  const wave2 = $('wave2');
+  const timeText = $('timeText');
+  const statusLabel = $('statusLabel');
+  const subText = $('subText');
+  const hint = $('hint');
+  const stopBtn = $('stopBtn');
+  const intervalSummary = $('intervalSummary');
+  const windowSummary = $('windowSummary');
+  const startTime = $('startTime');
+  const endTime = $('endTime');
+
+  progressArc.style.strokeDasharray = String(CIRC);
+  glowArc.style.strokeDasharray = String(CIRC);
+
+  // Instrument ticks
+  const ticks = $('ticks');
+  for (let i = 0; i < 72; i++) {
+    const angle = (i * 5 - 90) * Math.PI / 180;
+    const major = i % 18 === 0;
+    const r1 = R + (major ? 8 : 11);
+    const r2 = R + (major ? 15 : 14);
+    const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+    line.setAttribute('x1', CENTER + Math.cos(angle) * r1);
+    line.setAttribute('y1', CENTER + Math.sin(angle) * r1);
+    line.setAttribute('x2', CENTER + Math.cos(angle) * r2);
+    line.setAttribute('y2', CENTER + Math.sin(angle) * r2);
+    line.setAttribute('stroke-width', major ? 1.4 : 1);
+    line.setAttribute('stroke-opacity', major ? .41 : .16);
+    ticks.appendChild(line);
+  }
+
+  function pad(n) { return String(n).padStart(2, '0'); }
+  function timeLabel(minutes) { return pad(Math.floor(minutes / 60)) + ':' + pad(minutes % 60); }
+  function windowLabel() {
+    if (state.windowStart === state.windowEnd) return '全天';
+    return timeLabel(state.windowStart) + ' – ' + timeLabel(state.windowEnd);
+  }
+  function countdown(ms) {
+    const sec = Math.max(0, Math.ceil(ms / 1000));
+    const h = Math.floor(sec / 3600);
+    const m = Math.floor((sec % 3600) / 60);
+    const s = sec % 60;
+    return h > 0 ? h + ':' + pad(m) + ':' + pad(s) : pad(m) + ':' + pad(s);
+  }
+  function fraction() {
+    if (!state.running) return 1;
+    return Math.max(0, Math.min(1, state.remainingMs / state.totalMs));
+  }
+
+  function render() {
+    const f = fraction();
+    const offset = CIRC * (1 - f);
+    progressArc.style.strokeDashoffset = String(offset);
+    glowArc.style.strokeDashoffset = String(offset);
+
+    const angle = (-90 + f * 360) * Math.PI / 180;
+    const dotX = CENTER + Math.cos(angle) * R;
+    const dotY = CENTER + Math.sin(angle) * R;
+    const showDot = state.running && f > .002 && f < .999;
+    leadDot.setAttribute('cx', dotX); leadDot.setAttribute('cy', dotY);
+    leadDotHalo.setAttribute('cx', dotX); leadDotHalo.setAttribute('cy', dotY);
+    leadDot.style.display = showDot ? '' : 'none';
+    leadDotHalo.style.display = showDot ? '' : 'none';
+
+    ring.classList.toggle('running', state.running);
+    if (state.running) {
+      statusLabel.textContent = state.paused ? '已暂停 · 轻点继续' : '距离下次喝水';
+      statusLabel.classList.toggle('paused', state.paused);
+      timeText.textContent = countdown(state.remainingMs);
+      timeText.classList.toggle('long', timeText.textContent.length >= 7);
+      subText.textContent = '每 ' + state.interval + ' 分钟 · ' + windowLabel();
+      hint.textContent = state.paused
+        ? '已暂停 · 轻点圆环继续'
+        : '轻点圆环暂停 · 结束本次后需重新开始';
+    } else {
+      hint.textContent = '轻点圆环开始 · 运行中轻点可暂停';
+    }
+
+    intervalSummary.textContent = '每 ' + state.interval + ' 分钟';
+    windowSummary.textContent = windowLabel();
+    startTime.textContent = timeLabel(state.windowStart);
+    endTime.textContent = timeLabel(state.windowEnd);
+
+    document.querySelectorAll('.chip[data-min]').forEach((chip) => {
+      const value = chip.dataset.min;
+      chip.classList.toggle('selected', value === 'custom'
+        ? ![15,30,45,60,90].includes(state.interval)
+        : Number(value) === state.interval);
+    });
+  }
+
+  let phase = 0;
+  function wavePath(y, amp, offset) {
+    const left = CENTER - INNER_R;
+    const width = INNER_R * 2;
+    let d = 'M ' + left + ' ' + y;
+    const steps = 48;
+    for (let i = 1; i <= steps; i++) {
+      const x = left + width * i / steps;
+      const yy = y + Math.sin((i / steps) * Math.PI * 3.1 + phase + offset) * amp
+        + Math.sin((i / steps) * Math.PI * 1.3 - phase * .7) * 1.4;
+      d += ' L ' + x.toFixed(2) + ' ' + yy.toFixed(2);
+    }
+    return d;
+  }
+  function drawWater() {
+    const f = fraction();
+    const top = CENTER + INNER_R - 2 * INNER_R * f;
+    const fillTop = wavePath(top, 3.2, 0);
+    waterFill.setAttribute('d', fillTop + ' L ' + (CENTER + INNER_R) + ' 266 L ' + (CENTER - INNER_R) + ' 266 Z');
+    wave1.setAttribute('d', wavePath(top, 3.2, 0));
+    wave2.setAttribute('d', wavePath(top + 4.5, 2.1, 1.7));
+  }
+  function animate() {
+    phase += .035;
+    drawWater();
+    requestAnimationFrame(animate);
+  }
+
+  function startTimer() {
+    state.running = true;
+    state.paused = false;
+    state.totalMs = state.interval * 60000;
+    state.remainingMs = state.totalMs;
+    state.endAt = Date.now() + state.remainingMs;
+    render();
+  }
+  function togglePause() {
+    if (!state.running) return;
+    if (state.paused) {
+      state.paused = false;
+      state.endAt = Date.now() + state.remainingMs;
+    } else {
+      state.paused = true;
+      state.remainingMs = Math.max(0, state.endAt - Date.now());
+    }
+    render();
+  }
+  function stopTimer() {
+    state.running = false;
+    state.paused = false;
+    state.remainingMs = state.totalMs;
+    render();
+  }
+  function resetTimer() {
+    state.running = true;
+    state.paused = false;
+    state.totalMs = state.interval * 60000;
+    state.remainingMs = state.totalMs;
+    state.endAt = Date.now() + state.remainingMs;
+    render();
+  }
+
+  setInterval(() => {
+    if (!state.running || state.paused) return;
+    state.remainingMs = Math.max(0, state.endAt - Date.now());
+    if (state.remainingMs <= 0) {
+      showToast();
+      state.remainingMs = state.totalMs;
+      state.endAt = Date.now() + state.remainingMs;
+    }
+    render();
+  }, 250);
+
+  function showToast() {
+    const toast = $('toast');
+    toast.classList.add('show');
+    clearTimeout(showToast.timer);
+    showToast.timer = setTimeout(() => toast.classList.remove('show'), 4200);
+  }
+
+  ring.addEventListener('click', () => {
+    if (!state.running) startTimer();
+    else togglePause();
+  });
+  stopBtn.addEventListener('click', stopTimer);
+
+  document.querySelectorAll('.chip[data-min]').forEach((chip) => {
+    chip.addEventListener('click', () => {
+      if (chip.dataset.min === 'custom') {
+        $('customInput').value = state.interval;
+        $('customModal').hidden = false;
+        setTimeout(() => $('customInput').focus(), 80);
+        return;
+      }
+      state.interval = Number(chip.dataset.min);
+      if (state.running) resetTimer();
+      else { state.totalMs = state.interval * 60000; state.remainingMs = state.totalMs; render(); }
+    });
+  });
+
+  $('customSave').addEventListener('click', () => {
+    const value = parseInt($('customInput').value, 10);
+    if (!Number.isFinite(value) || value < 5 || value > 180) {
+      $('customInput').style.borderColor = 'rgba(255,157,140,.7)';
+      return;
+    }
+    state.interval = value;
+    $('customModal').hidden = true;
+    if (state.running) resetTimer();
+    else { state.totalMs = value * 60000; state.remainingMs = state.totalMs; render(); }
+  });
+
+  $('startTime').addEventListener('click', () => openTimeModal(true));
+  $('endTime').addEventListener('click', () => openTimeModal(false));
+  function openTimeModal(isStart) {
+    state.timeTarget = isStart ? 'start' : 'end';
+    $('timeModalTitle').textContent = isStart ? '选择开始时间' : '选择结束时间';
+    $('timeInput').value = timeLabel(isStart ? state.windowStart : state.windowEnd);
+    $('timeModal').hidden = false;
+  }
+  $('timeSave').addEventListener('click', () => {
+    const parts = $('timeInput').value.split(':');
+    const minutes = Number(parts[0]) * 60 + Number(parts[1]);
+    if (!Number.isFinite(minutes)) return;
+    if (state.timeTarget === 'start') state.windowStart = minutes;
+    else state.windowEnd = minutes;
+    state.totalMs = state.interval * 60000;
+    if (state.running) resetTimer();
+    $('timeModal').hidden = true;
+    render();
+  });
+
+  document.querySelectorAll('[data-close]').forEach((button) => {
+    button.addEventListener('click', () => { $(button.dataset.close).hidden = true; });
+  });
+  document.querySelectorAll('.modal-backdrop').forEach((backdrop) => {
+    backdrop.addEventListener('click', (event) => {
+      if (event.target === backdrop) backdrop.hidden = true;
+    });
+  });
+
+  // Permission rows are interactive in the preview so all states can be inspected.
+  const perms = {
+    notify: { on: true, title: '通知权限', onText: '已开启', offText: '未开启，提醒不会显示' },
+    battery: { on: false, title: '电池优化', onText: '已允许高耗电', offText: '仍受系统限制' },
+    alarm: { on: true, title: '精准闹钟', onText: '已允许精准提醒', offText: '使用近似提醒' },
+  };
+  document.querySelectorAll('.perm-row').forEach((row) => {
+    row.addEventListener('click', () => {
+      const key = row.dataset.perm;
+      const perm = perms[key];
+      perm.on = !perm.on;
+      const stateEl = $(key + 'State');
+      const actionEl = $(key + 'Action');
+      stateEl.textContent = perm.on ? perm.onText : perm.offText;
+      stateEl.classList.toggle('on', perm.on);
+      stateEl.classList.toggle('off', !perm.on);
+      actionEl.textContent = perm.on ? '管理' : '去允许';
+    });
+  });
+
+  // Query-string states make README screenshots reproducible.
+  if (params.get('state') === 'running') {
+    state.running = true;
+    state.paused = false;
+    state.remainingMs = (parseInt(params.get('remaining') || '1453', 10)) * 1000;
+    state.totalMs = state.interval * 60000;
+    state.endAt = Date.now() + state.remainingMs;
+  }
+  if (params.get('shot') === '1') document.body.classList.add('shot');
+
+  render();
+  animate();
+</script>
+</body>
+</html>

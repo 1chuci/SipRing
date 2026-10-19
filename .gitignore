@@ -1,0 +1,16 @@
+*.iml
+.gradle/
+local.properties
+.idea/
+.DS_Store
+build/
+captures/
+.externalNativeBuild/
+.cxx/
+app/build/
+dist/*.apk
+!dist/SipRing-0.0.1.apk
+preview/*.png
+!preview/preview-idle.png
+!preview/preview-running.png
+!preview/icon.png
