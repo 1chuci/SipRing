@@ -1,6 +1,6 @@
 # SipRing · 喝水提醒
 
-> **v0.0.2** · 一个会认真提醒你喝水的小应用。  
+> **v0.0.3** · 一个会认真提醒你喝水的小应用。  
 > Android 8.0+（minSdk 26）· 原生 Java · 无网络权限 · 无第三方 UI 依赖
 
 <p align="center">
@@ -8,13 +8,15 @@
 </p>
 
 <p align="center">
-  <img src="preview/preview-idle.png" width="45%" alt="SipRing 待机界面">
+  <img src="preview/preview-idle.png" width="30%" alt="SipRing 待机界面">
   &nbsp;&nbsp;
-  <img src="preview/preview-running.png" width="45%" alt="SipRing 倒计时界面">
+  <img src="preview/preview-running.png" width="30%" alt="SipRing 倒计时界面">
+  &nbsp;&nbsp;
+  <img src="preview/preview-settings.png" width="30%" alt="SipRing 设置界面">
 </p>
 
 <p align="center">
-  <sub>左：待机 · 右：运行中（390 × 844 互动设计预览，非模拟器截图）</sub>
+  <sub>待机 · 运行中 · 设置（浅色 + 海蓝主题，390 × 844 互动设计预览）</sub>
 </p>
 
 ---
@@ -23,7 +25,7 @@
 
 SipRing 只做一件事：在你设定的时间间隔和时段里，用通知提醒你喝水。
 
-主界面只有一个大圆环。轻点开始，圆环变成倒计时；再点一下暂停；点「结束本次」完全停止。所有设置都在同一屏完成，没有账号、没有联网、没有统计和广告。
+主界面只有一个大圆环。轻点开始，圆环变成倒计时；再点一下暂停；点「结束本次」完全停止。提醒间隔和时段在主界面设置，右上角齿轮进入外观、主题色与关于页面。
 
 ## 功能
 
@@ -37,6 +39,9 @@ SipRing 只做一件事：在你设定的时间间隔和时段里，用通知提
 | 精准闹钟 | Android 12+ 可授权精准闹钟，尽量保证 Doze 下准时 |
 | 允许高耗电 | 一键跳转「忽略电池优化」，减少系统拦截 |
 | 划掉即停止 | 从最近任务划掉 SipRing 后，计时、闹钟、通知全部停止 |
+| 外观设置 | 跟随系统 / 浅色 / 深色，立即切换 |
+| 主题色 | 青碧 / 海蓝 / 雾紫 / 暖金 / 玫瑰，圆环、按钮和强调色一起变化 |
+| 关于与隐私 | 应用名称、版本号、本地运行隐私声明 |
 | 本地存储 | 设置保存在 SharedPreferences，无网络权限，不收集数据 |
 | 主题图标 | 自适应图标 + Android 13 单色主题图标 |
 
@@ -45,10 +50,10 @@ SipRing 只做一件事：在你设定的时间间隔和时段里，用通知提
 APK 位于：
 
 ```text
-dist/SipRing-0.0.2.apk
+dist/SipRing-0.0.3.apk
 ```
 
-直接下载：[`dist/SipRing-0.0.2.apk`](dist/SipRing-0.0.2.apk)
+直接下载：[`dist/SipRing-0.0.3.apk`](dist/SipRing-0.0.3.apk)
 
 1. 把 APK 发到手机（微信文件传输、数据线、网盘均可）。
 2. 点击安装；如系统提示「禁止未知来源」，允许当前文件管理器安装。
@@ -64,7 +69,7 @@ dist/SipRing-0.0.2.apk
 也可以使用 adb：
 
 ```bash
-adb install -r dist/SipRing-0.0.2.apk
+adb install -r dist/SipRing-0.0.3.apk
 ```
 
 > APK 使用仓库内的 `keystore/sipring-dev.jks` 开发签名。它可以正常侧载和覆盖升级；如果以后要上架应用商店，请换成自己的私密签名，不要继续使用这个仓库密钥。  
@@ -152,7 +157,10 @@ app/build/outputs/apk/release/app-release.apk
 ```text
 SipRing/
 ├─ app/src/main/java/com/sipring/app/
-│  ├─ MainActivity.java      主界面、设置、权限、圆环交互
+│  ├─ MainActivity.java      主界面、权限、圆环交互
+│  ├─ SettingsActivity.java  显示模式、主题色、关于与隐私
+│  ├─ ThemeManager.java      主题/主题色选择与系统栏
+│  ├─ ThemeColors.java       主题属性取色
 │  ├─ TimerService.java      前台服务、计时、通知、AlarmManager
 │  ├─ TimerRingView.java     Canvas 绘制的圆形倒计时 / 水波
 │  ├─ AuroraView.java        背景光晕
@@ -169,17 +177,17 @@ SipRing/
 
 ## 版本
 
-当前版本 **0.0.2**（versionCode `2`）。
+当前版本 **0.0.3**（versionCode `3`）。
 
 更新记录见 [CHANGELOG.md](CHANGELOG.md)。
 
 ## 已知限制
 
-- 已用 Robolectric 在 API 26 / 29 / 31 / 33 / 34 上跑过 `MainActivity` 与 `TimerService` 启动测试；但构建环境没有真机或模拟器，尚未完成真机端到端测试。
-- 如果启动阶段遇到平台或厂商异常，0.0.2 会显示「SipRing 启动失败」错误页，而不是直接闪退；可以把错误页截图或「复制错误信息」的内容发回来。
+- 已用 Robolectric 在 API 26 / 29 / 31 / 33 / 34 上跑过 `MainActivity`、`SettingsActivity` 与 `TimerService` 启动测试；但构建环境没有真机或模拟器，尚未完成真机端到端测试。
+- 如果启动阶段遇到平台或厂商异常，0.0.3 会显示「SipRing 启动失败」错误页，而不是直接闪退；可以把错误页截图或「复制错误信息」的内容发回来。
 - 部分国产 ROM 会杀掉前台服务。SipRing 已尽量申请所需权限，但最终仍受系统策略影响。
 - 应用锁定竖屏，主要针对手机；平板会以竖屏居中显示。
-- 0.0.2 用前台服务 + 单次精确闹钟维持计时，没有做 WorkManager 链式补偿。
+- 0.0.3 用前台服务 + 单次精确闹钟维持计时，没有做 WorkManager 链式补偿。
 
 ## 回归测试
 
@@ -187,9 +195,10 @@ SipRing/
 ./gradlew testDebugUnitTest
 ```
 
-测试覆盖 `MainActivity` 启动、`TimerService` 创建、资源/主题加载和通知渠道创建，运行在 API 26 / 29 / 31 / 33 / 34。
+测试覆盖 `MainActivity`、`SettingsActivity` 启动，`TimerService` 创建，浅色/深色/强调色主题加载，资源/主题加载和通知渠道创建，运行在 API 26 / 29 / 31 / 33 / 34。
 
 ## License
 
 [MIT](LICENSE)
+
 

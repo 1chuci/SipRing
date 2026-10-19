@@ -1,21 +1,80 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <!-- Dark palette -->
     <color name="bg_deep">#041216</color>
+    <color name="bg_top">#071D24</color>
     <color name="bg_deep_2">#071E26</color>
     <color name="surface">#0C252D</color>
     <color name="surface_high">#11333C</color>
+    <color name="field">#0C262E</color>
     <color name="stroke">#1B4852</color>
+    <color name="stroke_strong">#2B5B65</color>
     <color name="stroke_soft">#12343C</color>
-    <color name="aqua">#5AE8C8</color>
-    <color name="cyan">#63C9FF</color>
-    <color name="mint">#C8FFE8</color>
     <color name="text_primary">#EDFCF9</color>
     <color name="text_secondary">#8BB2B8</color>
     <color name="text_faint">#5E858C</color>
-    <color name="amber">#FFC66D</color>
-    <color name="danger">#FF9D8C</color>
+    <color name="aqua">#5AE8C8</color>
+    <color name="cyan">#63C9FF</color>
+    <color name="mint">#C8FFE8</color>
+    <color name="accent_text_dark">#5AE8C8</color>
     <color name="chip_text">#B6D6D9</color>
     <color name="chip_text_selected">#04231E</color>
+    <color name="amber">#FFC66D</color>
+    <color name="danger">#FF9D8C</color>
+    <color name="ring_track">#163B42</color>
+    <color name="ring_disc_center">#123B44</color>
+    <color name="ring_disc_edge">#071B22</color>
+    <color name="ring_stroke">#2C6570</color>
+
+    <!-- Light palette -->
+    <color name="light_bg">#F3FAF8</color>
+    <color name="light_bg_top">#E4F4EF</color>
+    <color name="light_surface">#FFFFFF</color>
+    <color name="light_surface_high">#F0F8F5</color>
+    <color name="light_field">#F8FCFB</color>
+    <color name="light_stroke">#D2E7E1</color>
+    <color name="light_stroke_strong">#B2D5CE</color>
+    <color name="light_stroke_soft">#E4F1ED</color>
+    <color name="light_text_primary">#102A2A</color>
+    <color name="light_text_secondary">#4D7476</color>
+    <color name="light_text_faint">#789697</color>
+    <color name="light_chip_text">#3C5E60</color>
+    <color name="light_warning">#A96700</color>
+    <color name="light_ring_track">#D6EAE5</color>
+    <color name="light_ring_disc_center">#FFFFFF</color>
+    <color name="light_ring_disc_edge">#EAF6F3</color>
+    <color name="light_ring_stroke">#C2DDD7</color>
+
+    <!-- Accent palettes -->
+    <color name="accent_aqua">#5AE8C8</color>
+    <color name="accent_aqua_secondary">#63C9FF</color>
+    <color name="accent_aqua_mint">#C8FFE8</color>
+    <color name="accent_aqua_text">#087F6A</color>
+
+    <color name="accent_ocean">#66B5FF</color>
+    <color name="accent_ocean_secondary">#8A8CFF</color>
+    <color name="accent_ocean_mint">#D8E8FF</color>
+    <color name="accent_ocean_text_dark">#7CC7FF</color>
+    <color name="accent_ocean_text_light">#0B6EA8</color>
+
+    <color name="accent_violet">#C39DFF</color>
+    <color name="accent_violet_secondary">#7CDFFF</color>
+    <color name="accent_violet_mint">#ECD9FF</color>
+    <color name="accent_violet_text_dark">#C9A6FF</color>
+    <color name="accent_violet_text_light">#6A3AB5</color>
+
+    <color name="accent_amber">#FFC66D</color>
+    <color name="accent_amber_secondary">#FF9D8A</color>
+    <color name="accent_amber_mint">#FFE7B8</color>
+    <color name="accent_amber_text_dark">#FFD08A</color>
+    <color name="accent_amber_text_light">#9A5C00</color>
+
+    <color name="accent_rose">#FF9DBB</color>
+    <color name="accent_rose_secondary">#FFC6D9</color>
+    <color name="accent_rose_mint">#FFE2EB</color>
+    <color name="accent_rose_text_dark">#FFB3C9</color>
+    <color name="accent_rose_text_light">#A82F5B</color>
+
     <color name="dot_on">#5AE8C8</color>
     <color name="dot_off">#FFC66D</color>
     <color name="transparent">#00000000</color>

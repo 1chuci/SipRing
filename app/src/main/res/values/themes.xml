@@ -1,10 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <style name="Theme.SipRing" parent="android:Theme.Material.NoActionBar">
+
+    <!-- ================================================================
+         App themes
+         ================================================================ -->
+
+    <style name="Theme.SipRing.Base" parent="android:Theme.Material.NoActionBar">
         <item name="android:fontFamily">sans-serif</item>
         <item name="android:windowBackground">@color/bg_deep</item>
-        <item name="android:colorAccent">@color/aqua</item>
-        <item name="android:colorControlActivated">@color/aqua</item>
+        <item name="android:colorAccent">@color/accent_aqua</item>
+        <item name="android:colorControlActivated">@color/accent_aqua</item>
         <item name="android:colorControlHighlight">#33FFFFFF</item>
         <item name="android:statusBarColor">@android:color/transparent</item>
         <item name="android:navigationBarColor">@android:color/transparent</item>
@@ -12,15 +17,243 @@
         <item name="android:windowDrawsSystemBarBackgrounds">true</item>
         <item name="android:windowNoTitle">true</item>
         <item name="android:windowActionModeOverlay">true</item>
+
+        <item name="sipBg">@color/bg_deep</item>
+        <item name="sipBgTop">@color/bg_top</item>
+        <item name="sipSurface">@color/surface</item>
+        <item name="sipSurfaceHigh">@color/surface_high</item>
+        <item name="sipField">@color/field</item>
+        <item name="sipStroke">@color/stroke</item>
+        <item name="sipStrokeStrong">@color/stroke_strong</item>
+        <item name="sipStrokeSoft">@color/stroke_soft</item>
+        <item name="sipTextPrimary">@color/text_primary</item>
+        <item name="sipTextSecondary">@color/text_secondary</item>
+        <item name="sipTextFaint">@color/text_faint</item>
+        <item name="sipAccent">@color/accent_aqua</item>
+        <item name="sipAccentSecondary">@color/accent_aqua_secondary</item>
+        <item name="sipAccentMint">@color/accent_aqua_mint</item>
+        <item name="sipAccentText">@color/accent_text_dark</item>
+        <item name="sipChipText">@color/chip_text</item>
+        <item name="sipChipTextSelected">@color/chip_text_selected</item>
+        <item name="sipWarning">@color/amber</item>
+        <item name="sipRingTrack">@color/ring_track</item>
+        <item name="sipRingDiscCenter">@color/ring_disc_center</item>
+        <item name="sipRingDiscEdge">@color/ring_disc_edge</item>
+        <item name="sipRingStroke">@color/ring_stroke</item>
     </style>
 
-    <style name="SipRingDialog" parent="@android:style/Theme.Material.Dialog.Alert">
-        <item name="android:colorAccent">@color/aqua</item>
+    <style name="Theme.SipRing" parent="Theme.SipRing.Base" />
+
+    <style name="Theme.SipRing.Light" parent="android:Theme.Material.Light.NoActionBar">
+        <item name="android:fontFamily">sans-serif</item>
+        <item name="android:windowBackground">@color/light_bg</item>
+        <item name="android:colorAccent">@color/accent_aqua</item>
+        <item name="android:colorControlActivated">@color/accent_aqua</item>
+        <item name="android:colorControlHighlight">#22000000</item>
+        <item name="android:statusBarColor">@android:color/transparent</item>
+        <item name="android:navigationBarColor">@android:color/transparent</item>
+        <item name="android:windowLightStatusBar">true</item>
+        <item name="android:windowDrawsSystemBarBackgrounds">true</item>
+        <item name="android:windowNoTitle">true</item>
+        <item name="android:windowActionModeOverlay">true</item>
+
+        <item name="sipBg">@color/light_bg</item>
+        <item name="sipBgTop">@color/light_bg_top</item>
+        <item name="sipSurface">@color/light_surface</item>
+        <item name="sipSurfaceHigh">@color/light_surface_high</item>
+        <item name="sipField">@color/light_field</item>
+        <item name="sipStroke">@color/light_stroke</item>
+        <item name="sipStrokeStrong">@color/light_stroke_strong</item>
+        <item name="sipStrokeSoft">@color/light_stroke_soft</item>
+        <item name="sipTextPrimary">@color/light_text_primary</item>
+        <item name="sipTextSecondary">@color/light_text_secondary</item>
+        <item name="sipTextFaint">@color/light_text_faint</item>
+        <item name="sipAccent">@color/accent_aqua</item>
+        <item name="sipAccentSecondary">@color/accent_aqua_secondary</item>
+        <item name="sipAccentMint">@color/accent_aqua_mint</item>
+        <item name="sipAccentText">@color/accent_aqua_text</item>
+        <item name="sipChipText">@color/light_chip_text</item>
+        <item name="sipChipTextSelected">@color/chip_text_selected</item>
+        <item name="sipWarning">@color/light_warning</item>
+        <item name="sipRingTrack">@color/light_ring_track</item>
+        <item name="sipRingDiscCenter">@color/light_ring_disc_center</item>
+        <item name="sipRingDiscEdge">@color/light_ring_disc_edge</item>
+        <item name="sipRingStroke">@color/light_ring_stroke</item>
+    </style>
+
+    <!-- Dark accent overlays -->
+    <style name="Theme.SipRing.Ocean" parent="Theme.SipRing">
+        <item name="sipAccent">@color/accent_ocean</item>
+        <item name="sipAccentSecondary">@color/accent_ocean_secondary</item>
+        <item name="sipAccentMint">@color/accent_ocean_mint</item>
+        <item name="sipAccentText">@color/accent_ocean_text_dark</item>
+        <item name="android:colorAccent">@color/accent_ocean</item>
+        <item name="android:colorControlActivated">@color/accent_ocean</item>
+    </style>
+    <style name="Theme.SipRing.Violet" parent="Theme.SipRing">
+        <item name="sipAccent">@color/accent_violet</item>
+        <item name="sipAccentSecondary">@color/accent_violet_secondary</item>
+        <item name="sipAccentMint">@color/accent_violet_mint</item>
+        <item name="sipAccentText">@color/accent_violet_text_dark</item>
+        <item name="android:colorAccent">@color/accent_violet</item>
+        <item name="android:colorControlActivated">@color/accent_violet</item>
+    </style>
+    <style name="Theme.SipRing.Amber" parent="Theme.SipRing">
+        <item name="sipAccent">@color/accent_amber</item>
+        <item name="sipAccentSecondary">@color/accent_amber_secondary</item>
+        <item name="sipAccentMint">@color/accent_amber_mint</item>
+        <item name="sipAccentText">@color/accent_amber_text_dark</item>
+        <item name="android:colorAccent">@color/accent_amber</item>
+        <item name="android:colorControlActivated">@color/accent_amber</item>
+    </style>
+    <style name="Theme.SipRing.Rose" parent="Theme.SipRing">
+        <item name="sipAccent">@color/accent_rose</item>
+        <item name="sipAccentSecondary">@color/accent_rose_secondary</item>
+        <item name="sipAccentMint">@color/accent_rose_mint</item>
+        <item name="sipAccentText">@color/accent_rose_text_dark</item>
+        <item name="android:colorAccent">@color/accent_rose</item>
+        <item name="android:colorControlActivated">@color/accent_rose</item>
+    </style>
+
+    <!-- Light accent overlays -->
+    <style name="Theme.SipRing.Light.Ocean" parent="Theme.SipRing.Light">
+        <item name="sipAccent">@color/accent_ocean</item>
+        <item name="sipAccentSecondary">@color/accent_ocean_secondary</item>
+        <item name="sipAccentMint">@color/accent_ocean_mint</item>
+        <item name="sipAccentText">@color/accent_ocean_text_light</item>
+        <item name="android:colorAccent">@color/accent_ocean</item>
+        <item name="android:colorControlActivated">@color/accent_ocean</item>
+    </style>
+    <style name="Theme.SipRing.Light.Violet" parent="Theme.SipRing.Light">
+        <item name="sipAccent">@color/accent_violet</item>
+        <item name="sipAccentSecondary">@color/accent_violet_secondary</item>
+        <item name="sipAccentMint">@color/accent_violet_mint</item>
+        <item name="sipAccentText">@color/accent_violet_text_light</item>
+        <item name="android:colorAccent">@color/accent_violet</item>
+        <item name="android:colorControlActivated">@color/accent_violet</item>
+    </style>
+    <style name="Theme.SipRing.Light.Amber" parent="Theme.SipRing.Light">
+        <item name="sipAccent">@color/accent_amber</item>
+        <item name="sipAccentSecondary">@color/accent_amber_secondary</item>
+        <item name="sipAccentMint">@color/accent_amber_mint</item>
+        <item name="sipAccentText">@color/accent_amber_text_light</item>
+        <item name="android:colorAccent">@color/accent_amber</item>
+        <item name="android:colorControlActivated">@color/accent_amber</item>
+    </style>
+    <style name="Theme.SipRing.Light.Rose" parent="Theme.SipRing.Light">
+        <item name="sipAccent">@color/accent_rose</item>
+        <item name="sipAccentSecondary">@color/accent_rose_secondary</item>
+        <item name="sipAccentMint">@color/accent_rose_mint</item>
+        <item name="sipAccentText">@color/accent_rose_text_light</item>
+        <item name="android:colorAccent">@color/accent_rose</item>
+        <item name="android:colorControlActivated">@color/accent_rose</item>
+    </style>
+
+    <!-- ================================================================
+         Dialog themes (separate because AlertDialog uses its own theme)
+         ================================================================ -->
+
+    <style name="Theme.SipRing.Dialog" parent="@android:style/Theme.Material.Dialog.Alert">
         <item name="android:windowBackground">@drawable/bg_dialog</item>
         <item name="android:windowMinWidthMajor">86%</item>
         <item name="android:windowMinWidthMinor">86%</item>
         <item name="android:windowCloseOnTouchOutside">true</item>
+        <item name="android:colorAccent">@color/accent_aqua</item>
         <item name="android:textColorPrimary">@color/text_primary</item>
         <item name="android:textColorSecondary">@color/text_secondary</item>
+
+        <item name="sipSurface">@color/surface</item>
+        <item name="sipSurfaceHigh">@color/surface_high</item>
+        <item name="sipField">@color/field</item>
+        <item name="sipStroke">@color/stroke</item>
+        <item name="sipStrokeSoft">@color/stroke_soft</item>
+        <item name="sipTextPrimary">@color/text_primary</item>
+        <item name="sipTextSecondary">@color/text_secondary</item>
+        <item name="sipTextFaint">@color/text_faint</item>
+        <item name="sipAccent">@color/accent_aqua</item>
+        <item name="sipAccentSecondary">@color/accent_aqua_secondary</item>
+        <item name="sipAccentMint">@color/accent_aqua_mint</item>
+        <item name="sipAccentText">@color/accent_text_dark</item>
+    </style>
+
+    <style name="Theme.SipRing.Dialog.Light" parent="@android:style/Theme.Material.Light.Dialog.Alert">
+        <item name="android:windowBackground">@drawable/bg_dialog</item>
+        <item name="android:windowMinWidthMajor">86%</item>
+        <item name="android:windowMinWidthMinor">86%</item>
+        <item name="android:windowCloseOnTouchOutside">true</item>
+        <item name="android:colorAccent">@color/accent_aqua</item>
+        <item name="android:textColorPrimary">@color/light_text_primary</item>
+        <item name="android:textColorSecondary">@color/light_text_secondary</item>
+
+        <item name="sipSurface">@color/light_surface</item>
+        <item name="sipSurfaceHigh">@color/light_surface_high</item>
+        <item name="sipField">@color/light_field</item>
+        <item name="sipStroke">@color/light_stroke</item>
+        <item name="sipStrokeSoft">@color/light_stroke_soft</item>
+        <item name="sipTextPrimary">@color/light_text_primary</item>
+        <item name="sipTextSecondary">@color/light_text_secondary</item>
+        <item name="sipTextFaint">@color/light_text_faint</item>
+        <item name="sipAccent">@color/accent_aqua</item>
+        <item name="sipAccentSecondary">@color/accent_aqua_secondary</item>
+        <item name="sipAccentMint">@color/accent_aqua_mint</item>
+        <item name="sipAccentText">@color/accent_aqua_text</item>
+    </style>
+
+    <style name="Theme.SipRing.Dialog.Ocean" parent="Theme.SipRing.Dialog">
+        <item name="sipAccent">@color/accent_ocean</item>
+        <item name="sipAccentSecondary">@color/accent_ocean_secondary</item>
+        <item name="sipAccentMint">@color/accent_ocean_mint</item>
+        <item name="sipAccentText">@color/accent_ocean_text_dark</item>
+        <item name="android:colorAccent">@color/accent_ocean</item>
+    </style>
+    <style name="Theme.SipRing.Dialog.Violet" parent="Theme.SipRing.Dialog">
+        <item name="sipAccent">@color/accent_violet</item>
+        <item name="sipAccentSecondary">@color/accent_violet_secondary</item>
+        <item name="sipAccentMint">@color/accent_violet_mint</item>
+        <item name="sipAccentText">@color/accent_violet_text_dark</item>
+        <item name="android:colorAccent">@color/accent_violet</item>
+    </style>
+    <style name="Theme.SipRing.Dialog.Amber" parent="Theme.SipRing.Dialog">
+        <item name="sipAccent">@color/accent_amber</item>
+        <item name="sipAccentSecondary">@color/accent_amber_secondary</item>
+        <item name="sipAccentMint">@color/accent_amber_mint</item>
+        <item name="sipAccentText">@color/accent_amber_text_dark</item>
+        <item name="android:colorAccent">@color/accent_amber</item>
+    </style>
+    <style name="Theme.SipRing.Dialog.Rose" parent="Theme.SipRing.Dialog">
+        <item name="sipAccent">@color/accent_rose</item>
+        <item name="sipAccentSecondary">@color/accent_rose_secondary</item>
+        <item name="sipAccentMint">@color/accent_rose_mint</item>
+        <item name="sipAccentText">@color/accent_rose_text_dark</item>
+        <item name="android:colorAccent">@color/accent_rose</item>
+    </style>
+
+    <style name="Theme.SipRing.Dialog.Light.Ocean" parent="Theme.SipRing.Dialog.Light">
+        <item name="sipAccent">@color/accent_ocean</item>
+        <item name="sipAccentSecondary">@color/accent_ocean_secondary</item>
+        <item name="sipAccentMint">@color/accent_ocean_mint</item>
+        <item name="sipAccentText">@color/accent_ocean_text_light</item>
+        <item name="android:colorAccent">@color/accent_ocean</item>
+    </style>
+    <style name="Theme.SipRing.Dialog.Light.Violet" parent="Theme.SipRing.Dialog.Light">
+        <item name="sipAccent">@color/accent_violet</item>
+        <item name="sipAccentSecondary">@color/accent_violet_secondary</item>
+        <item name="sipAccentMint">@color/accent_violet_mint</item>
+        <item name="sipAccentText">@color/accent_violet_text_light</item>
+        <item name="android:colorAccent">@color/accent_violet</item>
+    </style>
+    <style name="Theme.SipRing.Dialog.Light.Amber" parent="Theme.SipRing.Dialog.Light">
+        <item name="sipAccent">@color/accent_amber</item>
+        <item name="sipAccentSecondary">@color/accent_amber_secondary</item>
+        <item name="sipAccentMint">@color/accent_amber_mint</item>
+        <item name="sipAccentText">@color/accent_amber_text_light</item>
+        <item name="android:colorAccent">@color/accent_amber</item>
+    </style>
+    <style name="Theme.SipRing.Dialog.Light.Rose" parent="Theme.SipRing.Dialog.Light">
+        <item name="sipAccent">@color/accent_rose</item>
+        <item name="sipAccentSecondary">@color/accent_rose_secondary</item>
+        <item name="sipAccentMint">@color/accent_rose_mint</item>
+        <item name="sipAccentText">@color/accent_rose_text_light</item>
+        <item name="android:colorAccent">@color/accent_rose</item>
     </style>
 </resources>

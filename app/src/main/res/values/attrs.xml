@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <attr name="sipBg" format="color" />
+    <attr name="sipBgTop" format="color" />
+    <attr name="sipSurface" format="color" />
+    <attr name="sipSurfaceHigh" format="color" />
+    <attr name="sipField" format="color" />
+    <attr name="sipStroke" format="color" />
+    <attr name="sipStrokeStrong" format="color" />
+    <attr name="sipStrokeSoft" format="color" />
+    <attr name="sipTextPrimary" format="color" />
+    <attr name="sipTextSecondary" format="color" />
+    <attr name="sipTextFaint" format="color" />
+    <attr name="sipAccent" format="color" />
+    <attr name="sipAccentSecondary" format="color" />
+    <attr name="sipAccentMint" format="color" />
+    <attr name="sipAccentText" format="color" />
+    <attr name="sipChipText" format="color" />
+    <attr name="sipChipTextSelected" format="color" />
+    <attr name="sipWarning" format="color" />
+    <attr name="sipRingTrack" format="color" />
+    <attr name="sipRingDiscCenter" format="color" />
+    <attr name="sipRingDiscEdge" format="color" />
+    <attr name="sipRingStroke" format="color" />
+</resources>

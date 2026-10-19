@@ -16,6 +16,8 @@ final class Prefs {
     private static final String KEY_REMAINING = "remaining_ms";
     private static final String KEY_TOTAL = "total_ms";
     private static final String KEY_NOTIF_REQUESTED = "notif_requested";
+    private static final String KEY_THEME_MODE = "theme_mode";
+    private static final String KEY_ACCENT = "accent";
 
     static final int DEFAULT_INTERVAL = 30;
     static final int DEFAULT_WINDOW_START = 8 * 60;
@@ -88,6 +90,32 @@ final class Prefs {
 
     static void markNotificationsRequested(Context context) {
         get(context).edit().putBoolean(KEY_NOTIF_REQUESTED, true).apply();
+    }
+
+    static String themeMode(Context context) {
+        String mode = get(context).getString(KEY_THEME_MODE, ThemeManager.MODE_SYSTEM);
+        if (ThemeManager.MODE_LIGHT.equals(mode) || ThemeManager.MODE_DARK.equals(mode)) {
+            return mode;
+        }
+        return ThemeManager.MODE_SYSTEM;
+    }
+
+    static void setThemeMode(Context context, String mode) {
+        get(context).edit().putString(KEY_THEME_MODE, mode).apply();
+    }
+
+    static String accent(Context context) {
+        String accent = get(context).getString(KEY_ACCENT, ThemeManager.ACCENT_AQUA);
+        for (String candidate : ThemeManager.ACCENTS) {
+            if (candidate.equals(accent)) {
+                return accent;
+            }
+        }
+        return ThemeManager.ACCENT_AQUA;
+    }
+
+    static void setAccent(Context context, String accent) {
+        get(context).edit().putString(KEY_ACCENT, accent).apply();
     }
 
     static int clamp(int value, int min, int max) {

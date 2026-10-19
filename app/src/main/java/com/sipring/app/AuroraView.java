@@ -21,6 +21,12 @@ public class AuroraView extends View {
     private final float[] dustY = new float[38];
     private final float[] dustR = new float[38];
     private final float density;
+    private final int bgTop;
+    private final int bg;
+    private final int accent;
+    private final int secondary;
+    private final int dust;
+    private final boolean light;
 
     private Shader backgroundShader;
     private Shader glowOne;
@@ -38,7 +44,13 @@ public class AuroraView extends View {
     public AuroraView(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
         density = getResources().getDisplayMetrics().density;
-        dustPaint.setColor(0xFF8FE8DE);
+        bgTop = ThemeColors.get(context, R.attr.sipBgTop);
+        bg = ThemeColors.get(context, R.attr.sipBg);
+        accent = ThemeColors.get(context, R.attr.sipAccent);
+        secondary = ThemeColors.get(context, R.attr.sipAccentSecondary);
+        dust = ThemeColors.get(context, R.attr.sipTextFaint);
+        light = ThemeManager.isLight(context);
+        dustPaint.setColor(dust);
         dustPaint.setStyle(Paint.Style.FILL);
     }
 
@@ -47,20 +59,28 @@ public class AuroraView extends View {
         super.onSizeChanged(w, h, oldw, oldh);
         backgroundShader = new LinearGradient(
                 0f, 0f, w * 0.25f, h,
-                new int[]{0xFF071D24, 0xFF05171D, 0xFF040F13},
+                new int[]{bgTop, bg, bg},
                 new float[]{0f, 0.52f, 1f}, Shader.TileMode.CLAMP);
 
+        int glowAlpha = light ? 26 : 58;
+        int midAlpha = light ? 12 : 20;
         glowOne = new RadialGradient(
                 w * 0.12f, h * 0.06f, w * 0.82f,
-                new int[]{0x3A1F7778, 0x141B4B52, 0x00000000},
+                new int[]{ThemeColors.withAlpha(accent, glowAlpha),
+                        ThemeColors.withAlpha(accent, midAlpha),
+                        0x00000000},
                 new float[]{0f, 0.48f, 1f}, Shader.TileMode.CLAMP);
         glowTwo = new RadialGradient(
                 w * 0.98f, h * 0.31f, w * 0.66f,
-                new int[]{0x2E1E5D86, 0x10133355, 0x00000000},
+                new int[]{ThemeColors.withAlpha(secondary, glowAlpha - 10),
+                        ThemeColors.withAlpha(secondary, midAlpha),
+                        0x00000000},
                 new float[]{0f, 0.52f, 1f}, Shader.TileMode.CLAMP);
         glowThree = new RadialGradient(
                 w * 0.4f, h * 0.95f, w * 0.8f,
-                new int[]{0x27206F65, 0x0C123B39, 0x00000000},
+                new int[]{ThemeColors.withAlpha(accent, glowAlpha - 12),
+                        ThemeColors.withAlpha(accent, midAlpha - 4),
+                        0x00000000},
                 new float[]{0f, 0.5f, 1f}, Shader.TileMode.CLAMP);
 
         Random random = new Random(19L);
@@ -90,7 +110,7 @@ public class AuroraView extends View {
         canvas.drawCircle(w * 0.4f, h * 0.95f, w * 0.8f, glowPaint);
 
         for (int i = 0; i < dustX.length; i++) {
-            dustPaint.setAlpha(14 + (i % 5) * 6);
+            dustPaint.setAlpha(light ? (8 + (i % 5) * 3) : (14 + (i % 5) * 6));
             canvas.drawCircle(dustX[i], dustY[i], dustR[i], dustPaint);
         }
     }

@@ -2,6 +2,28 @@
 <resources>
     <string name="app_name">SipRing</string>
     <string name="header_subtitle">喝水提醒</string>
+    <string name="settings">设置</string>
+    <string name="settings_subtitle">外观、主题色与关于</string>
+    <string name="display_mode">显示模式</string>
+    <string name="display_mode_hint">跟随系统会随手机的深色模式自动切换</string>
+    <string name="mode_system">跟随系统</string>
+    <string name="mode_light">浅色</string>
+    <string name="mode_dark">深色</string>
+    <string name="theme_color">主题色</string>
+    <string name="theme_color_hint">圆环、按钮和强调色会一起变化</string>
+    <string name="accent_aqua">青碧</string>
+    <string name="accent_ocean">海蓝</string>
+    <string name="accent_violet">雾紫</string>
+    <string name="accent_amber">暖金</string>
+    <string name="accent_rose">玫瑰</string>
+    <string name="about">关于</string>
+    <string name="about_tagline">把喝水，变成一件准时的小事。</string>
+    <string name="about_version">版本 %1$s · versionCode %2$d</string>
+    <string name="about_privacy_title">用户隐私声明</string>
+    <string name="about_privacy">SipRing 只在你的手机本地运行，不申请网络权限，也不会把任何数据上传到服务器。\n\n应用会保存以下本地数据：提醒间隔、提醒时段、显示模式、主题色和当前计时状态。这些数据仅存放在本机 SharedPreferences 中，用于恢复设置和计时，不会与第三方共享。\n\n卸载应用或清除应用数据后，以上数据会被删除。SipRing 不读取通讯录、相册、位置、麦克风、相机等信息，也不集成广告或统计 SDK。</string>
+    <string name="about_copyright">© 2026 SipRing · 本地运行</string>
+    <string name="settings_footer">SipRing v%1$s · LOCAL ONLY</string>
+    <string name="back">返回</string>
     <string name="version_format">v%1$s</string>
     <string name="tagline">把喝水，变成一件准时的小事。</string>
 

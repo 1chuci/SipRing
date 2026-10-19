@@ -57,6 +57,10 @@ public class TimerRingView extends View {
     private final int textSecondary;
     private final int textFaint;
     private final int amber;
+    private final int ringTrack;
+    private final int ringDiscCenter;
+    private final int ringDiscEdge;
+    private final int ringStroke;
     private final float density;
 
     private int state = STATE_IDLE;
@@ -90,13 +94,17 @@ public class TimerRingView extends View {
     public TimerRingView(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
         density = getResources().getDisplayMetrics().density;
-        aqua = context.getColor(R.color.aqua);
-        cyan = context.getColor(R.color.cyan);
-        mint = context.getColor(R.color.mint);
-        textPrimary = context.getColor(R.color.text_primary);
-        textSecondary = context.getColor(R.color.text_secondary);
-        textFaint = context.getColor(R.color.text_faint);
-        amber = context.getColor(R.color.amber);
+        aqua = ThemeColors.get(context, R.attr.sipAccent);
+        cyan = ThemeColors.get(context, R.attr.sipAccentSecondary);
+        mint = ThemeColors.get(context, R.attr.sipAccentMint);
+        textPrimary = ThemeColors.get(context, R.attr.sipTextPrimary);
+        textSecondary = ThemeColors.get(context, R.attr.sipTextSecondary);
+        textFaint = ThemeColors.get(context, R.attr.sipTextFaint);
+        amber = ThemeColors.get(context, R.attr.sipWarning);
+        ringTrack = ThemeColors.get(context, R.attr.sipRingTrack);
+        ringDiscCenter = ThemeColors.get(context, R.attr.sipRingDiscCenter);
+        ringDiscEdge = ThemeColors.get(context, R.attr.sipRingDiscEdge);
+        ringStroke = ThemeColors.get(context, R.attr.sipRingStroke);
 
         setClickable(true);
         setFocusable(true);
@@ -104,7 +112,7 @@ public class TimerRingView extends View {
 
         trackPaint.setStyle(Paint.Style.STROKE);
         trackPaint.setStrokeWidth(dp(9f));
-        trackPaint.setColor(Color.parseColor("#163B42"));
+        trackPaint.setColor(ringTrack);
         trackPaint.setStrokeCap(Paint.Cap.ROUND);
 
         progressPaint.setStyle(Paint.Style.STROKE);
@@ -119,7 +127,7 @@ public class TimerRingView extends View {
 
         tickPaint.setStyle(Paint.Style.STROKE);
         tickPaint.setStrokeWidth(dp(1f));
-        tickPaint.setColor(Color.parseColor("#4C8B93"));
+        tickPaint.setColor(textFaint);
 
         bloomPaint.setStyle(Paint.Style.FILL);
 
@@ -127,8 +135,8 @@ public class TimerRingView extends View {
 
         innerStrokePaint.setStyle(Paint.Style.STROKE);
         innerStrokePaint.setStrokeWidth(dp(1f));
-        innerStrokePaint.setColor(Color.parseColor("#2C6570"));
-        innerStrokePaint.setAlpha(120);
+        innerStrokePaint.setColor(ringStroke);
+        innerStrokePaint.setAlpha(160);
 
         waterPaint.setStyle(Paint.Style.FILL);
 
@@ -209,16 +217,20 @@ public class TimerRingView extends View {
         progressPaint.setShader(sweep);
 
         bloomPaint.setShader(new RadialGradient(cx, cy, arcRadius + dp(28f),
-                new int[]{0x332F7C82, 0x141C4C53, 0x00000000},
+                new int[]{ThemeColors.withAlpha(aqua, 58),
+                        ThemeColors.withAlpha(cyan, 18),
+                        0x00000000},
                 new float[]{0f, 0.58f, 1f}, Shader.TileMode.CLAMP));
 
         discPaint.setShader(new RadialGradient(cx, cy - innerRadius * 0.32f,
                 innerRadius * 1.25f,
-                new int[]{0xFF123B44, 0xFF0A242C, 0xFF071B22},
-                new float[]{0f, 0.62f, 1f}, Shader.TileMode.CLAMP));
+                new int[]{ringDiscCenter, ringDiscEdge},
+                new float[]{0f, 1f}, Shader.TileMode.CLAMP));
 
         waterPaint.setShader(new LinearGradient(cx, cy - innerRadius, cx, cy + innerRadius,
-                new int[]{0x4D43D8C4, 0x2A1F8C89, 0x0A0B4A4D},
+                new int[]{ThemeColors.withAlpha(aqua, 74),
+                        ThemeColors.withAlpha(aqua, 34),
+                        ThemeColors.withAlpha(aqua, 8)},
                 new float[]{0f, 0.6f, 1f}, Shader.TileMode.CLAMP));
     }
 

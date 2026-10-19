@@ -2,6 +2,32 @@
 
 All notable changes to SipRing are documented here.
 
+## [0.0.3] — 2026-10-19
+
+Appearance and settings release. `versionCode 3`.
+
+### Added
+
+- 右上角版本号改为设置按钮，进入独立设置页。
+- 显示模式：跟随系统 / 浅色 / 深色，切换后立即生效。
+- 主题色：青碧 / 海蓝 / 雾紫 / 暖金 / 玫瑰；圆环、按钮、卡片强调色、通知颜色同步变化。
+- 浅色主题完整配色：背景、卡片、输入框、权限状态、状态栏/导航栏图标。
+- 关于页：应用名称、版本号、versionCode、用户隐私声明。
+- 隐私声明明确：只在本地运行、不申请网络权限、不上传数据；卸载/清除数据即删除本地设置。
+- 主题选择持久化到 SharedPreferences，返回主界面后自动应用。
+- 新增浅色 + 海蓝主题的设置页预览截图。
+
+### Changed
+
+- 主界面顶部不再显示版本号；版本号移动到「设置 → 关于」。
+- 通知强调色跟随主题色。
+- 设置页和对话框使用各自的浅色/深色主题变体。
+
+### Tests
+
+- 新增浅色/海蓝、深色/雾紫两套主题的 `MainActivity` + `SettingsActivity` 启动测试。
+- 全部 13 个 Robolectric 测试通过，覆盖 API 26 / 29 / 31 / 33 / 34。
+
 ## [0.0.2] — 2026-10-19
 
 Crash-fix release. `versionCode 2`.

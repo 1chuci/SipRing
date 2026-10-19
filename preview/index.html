@@ -9,7 +9,10 @@
     --bg: #041216;
     --bg-2: #071e26;
     --surface: #0c252d;
+    --surface-high: #12313a;
+    --field: #0c262e;
     --stroke: #1b4852;
+    --stroke-strong: #2b5b65;
     --stroke-soft: #12343c;
     --aqua: #5ae8c8;
     --cyan: #63c9ff;
@@ -17,6 +20,7 @@
     --text: #edfcf9;
     --dim: #8bb2b8;
     --faint: #5e858c;
+    --chip-text: #b6d6d9;
     --amber: #ffc66d;
     --danger: #ff9d8c;
   }
@@ -99,6 +103,14 @@
     margin-left: auto; padding: 6px 11px; border: 1px solid #1b444d; border-radius: 999px;
     background: #0e2a32; color: var(--dim); font-size: 9px; letter-spacing: .08em; font-weight: 600;
   }
+  .icon-button {
+    margin-left: auto; width: 40px; height: 40px; border-radius: 50%;
+    background: var(--field); border: 1px solid var(--stroke); color: var(--dim);
+    display: grid; place-items: center; cursor: pointer; padding: 0;
+    transition: background .18s ease, color .18s ease;
+  }
+  .icon-button:hover { color: var(--aqua); background: var(--surface-high); }
+  .icon-button svg { width: 19px; height: 19px; display: block; fill: currentColor; }
   .tagline { margin-top: 20px; color: var(--dim); font-size: 13px; letter-spacing: .02em; }
 
   .ring-wrap {
@@ -141,8 +153,8 @@
 
   .card {
     margin-top: 16px; padding: 16px 18px 17px; border-radius: 24px;
-    border: 1px solid #1a444d;
-    background: linear-gradient(145deg, #12313a 0%, #0a2028 78%);
+    border: 1px solid var(--stroke);
+    background: linear-gradient(145deg, var(--surface-high) 0%, var(--surface) 78%);
     box-shadow: 0 12px 34px rgba(0,0,0,.14), inset 0 1px 0 rgba(255,255,255,.025);
   }
   .card + .card { margin-top: 12px; }
@@ -154,12 +166,12 @@
   .chips::-webkit-scrollbar { display: none; }
   .chip {
     flex: 0 0 auto; height: 36px; min-width: 44px; padding: 0 13px; border-radius: 999px;
-    background: #0c262e; border: 1px solid #1a414a; color: #b6d6d9;
+    background: var(--field); border: 1px solid var(--stroke); color: var(--chip-text);
     font-family: inherit; font-size: 12px; font-weight: 600; cursor: pointer;
     transition: background .18s ease, color .18s ease, border-color .18s ease;
   }
   .chip.selected {
-    background: linear-gradient(90deg, #63c9ff, #5ae8c8);
+    background: linear-gradient(90deg, var(--cyan), var(--aqua));
     border-color: transparent; color: #04231e;
     box-shadow: 0 0 20px rgba(90,232,200,.16);
   }
@@ -167,8 +179,8 @@
 
   .times { display: flex; align-items: center; margin-top: 13px; gap: 10px; }
   .time-pill {
-    flex: 1; height: 48px; border-radius: 16px; border: 1px solid #1b444d;
-    background: #0a222a; color: var(--text); font-family: inherit;
+    flex: 1; height: 48px; border-radius: 16px; border: 1px solid var(--stroke);
+    background: var(--field); color: var(--text); font-family: inherit;
     font-size: 19px; font-weight: 300; letter-spacing: .06em; cursor: pointer;
     font-variant-numeric: tabular-nums;
   }
@@ -240,6 +252,71 @@
   .modal-actions .primary { color: var(--aqua); }
   .modal-actions button:active { background: rgba(255,255,255,.05); }
 
+  /* Light theme preview */
+  .phone.light {
+    --bg: #f3faf8; --bg-2: #e4f4ef;
+    --surface: #ffffff; --surface-high: #f0f8f5; --field: #f8fcfb;
+    --stroke: #d2e7e1; --stroke-strong: #b2d5ce; --stroke-soft: #e4f1ed;
+    --text: #102a2a; --dim: #4d7476; --faint: #789697; --chip-text: #3c5e60;
+    --amber: #a96700;
+  }
+  .phone.light .statusbar { color: #102a2a; }
+  .phone.light .signal i, .phone.light .battery::before { background: #102a2a; }
+  .phone.light .battery { border-color: rgba(16,42,42,.7); }
+  .phone.light .battery::after { background: rgba(16,42,42,.7); }
+  .phone.light .aurora::before { opacity: .38; }
+  .phone.light .aurora::after { opacity: .35; }
+  .phone.light .grain { opacity: .22; }
+  .phone.light .logo { background: linear-gradient(145deg, #e8f5f2, #ffffff); border-color: #c2ddd7; }
+
+  /* Settings screen preview */
+  .settings-screen {
+    position: absolute; z-index: 6; inset: 38px 0 0 0;
+    background: var(--bg); color: var(--text); overflow-y: auto; overflow-x: hidden;
+    padding: 8px 22px 48px; display: none; scrollbar-width: none;
+  }
+  .settings-screen::-webkit-scrollbar { display: none; }
+  .settings-screen.open { display: block; }
+  .settings-header { display: flex; align-items: center; }
+  .settings-back {
+    width: 40px; height: 40px; border-radius: 50%; border: 1px solid var(--stroke);
+    background: var(--field); color: var(--dim); font-size: 20px; cursor: pointer;
+    display: grid; place-items: center; font-family: inherit; line-height: 1;
+  }
+  .settings-title { margin-left: 12px; font-size: 22px; font-weight: 300; letter-spacing: .04em; color: var(--text); }
+  .settings-subtitle { margin-top: 14px; font-size: 12px; color: var(--dim); }
+  .settings-card { margin-top: 16px; padding: 16px 18px 17px; border-radius: 24px; border: 1px solid var(--stroke); background: linear-gradient(145deg, var(--surface-high), var(--surface)); color: var(--text); }
+  .settings-card-title { font-size: 15px; font-weight: 600; color: var(--text); }
+  .settings-card-sub { margin-top: 4px; font-size: 10.5px; color: var(--faint); }
+  .mode-row { display: flex; gap: 7px; margin-top: 14px; }
+  .mode-chip {
+    flex: 1; height: 40px; border-radius: 999px; border: 1px solid var(--stroke);
+    background: var(--field); color: var(--chip-text); font-family: inherit;
+    font-size: 12px; font-weight: 600; cursor: pointer;
+  }
+  .mode-chip.selected { background: linear-gradient(90deg, var(--cyan), var(--aqua)); border-color: transparent; color: #04231e; }
+  .swatches { display: flex; gap: 12px; margin-top: 15px; }
+  .swatch {
+    width: 42px; height: 42px; border-radius: 50%; border: 2px solid transparent;
+    cursor: pointer; display: grid; place-items: center; color: #04231e;
+    font-family: inherit; font-size: 16px; font-weight: 700; padding: 0;
+  }
+  .swatch.selected { border-color: var(--text); }
+  .swatch.aqua { background: linear-gradient(135deg, #63c9ff, #5ae8c8); }
+  .swatch.ocean { background: linear-gradient(135deg, #8a8cff, #66b5ff); }
+  .swatch.violet { background: linear-gradient(135deg, #7cdfff, #c39dff); }
+  .swatch.amber { background: linear-gradient(135deg, #ff9d8a, #ffc66d); }
+  .swatch.rose { background: linear-gradient(135deg, #ffc6d9, #ff9dbb); }
+  .about-row { display: flex; align-items: center; margin-top: 14px; }
+  .about-row > div:last-child { margin-left: 12px; }
+  .about-logo { width: 48px; height: 48px; border-radius: 50%; background: linear-gradient(145deg, #16444e, #092128); border: 1px solid #2c6b73; display: grid; place-items: center; }
+  .about-logo svg { width: 24px; height: 28px; }
+  .about-name { font-size: 19px; font-weight: 300; color: var(--text); }
+  .about-version { margin-top: 3px; font-size: 10.5px; color: var(--faint); }
+  .privacy-title { margin-top: 16px; font-size: 13px; font-weight: 600; color: var(--text); }
+  .privacy-text { margin-top: 7px; font-size: 10.5px; line-height: 1.75; color: var(--faint); }
+  .settings-footer { margin-top: 24px; text-align: center; font-size: 9px; letter-spacing: .16em; color: var(--faint); font-weight: 600; }
+
   body.shot { justify-content: flex-start; align-items: flex-start; background: var(--bg); }
   body.shot .phone { width: 390px; height: 844px; border-radius: 0; box-shadow: none; }
   body.shot .statusbar { height: 36px; }
@@ -283,7 +360,11 @@
         <div class="brand-name">SipRing</div>
         <div class="brand-sub">喝水提醒</div>
       </div>
-      <div class="version">v0.0.2</div>
+      <button class="icon-button" id="settingsBtn" aria-label="设置">
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M19.43,12.98c0.04,-0.32 0.07,-0.65 0.07,-0.98s-0.02,-0.66 -0.07,-0.98l2.11,-1.65c0.19,-0.15 0.24,-0.42 0.12,-0.64l-2,-3.46c-0.12,-0.22 -0.37,-0.31 -0.6,-0.22l-2.49,1c-0.52,-0.4 -1.08,-0.73 -1.69,-0.98L14.5,2.42C14.47,2.18 14.25,2 14,2h-4c-0.25,0 -0.46,0.18 -0.5,0.42L9.12,5.07c-0.61,0.25 -1.17,0.59 -1.69,0.98l-2.49,-1c-0.23,-0.08 -0.48,0 -0.6,0.22l-2,3.46c-0.13,0.22 -0.07,0.49 0.12,0.64l2.11,1.65c-0.04,0.32 -0.07,0.65 -0.07,0.98s0.02,0.66 0.07,0.98l-2.11,1.65c-0.19,0.15 -0.24,0.42 -0.12,0.64l2,3.46c0.12,0.22 0.37,0.31 0.6,0.22l2.49,-1c0.52,0.4 1.08,0.73 1.69,0.98l0.38,2.65c0.04,0.24 0.25,0.42 0.5,0.42h4c0.25,0 0.46,-0.18 0.5,-0.42l0.38,-2.65c0.61,-0.25 1.17,-0.58 1.69,-0.98l2.49,1c0.23,0.08 0.48,0 0.6,-0.22l2,-3.46c0.12,-0.22 0.07,-0.49 -0.12,-0.64zM12,15.5A3.5,3.5 0,1 1,12,8.5a3.5,3.5 0,0 1,0 7z"/>
+        </svg>
+      </button>
     </header>
 
     <div class="tagline">把喝水，变成一件准时的小事。</div>
@@ -419,8 +500,64 @@
       <div class="privacy">无网络权限 · 不收集任何数据</div>
     </section>
 
-    <div class="footer">v0.0.2 · MADE FOR ONE SMALL HABIT</div>
+    <div class="footer">v0.0.3 · MADE FOR ONE SMALL HABIT</div>
   </main>
+
+  <div class="settings-screen" id="settingsScreen">
+    <div class="settings-header">
+      <button class="settings-back" id="settingsBack" aria-label="返回">←</button>
+      <div class="settings-title">设置</div>
+    </div>
+    <div class="settings-subtitle">外观、主题色与关于</div>
+
+    <section class="settings-card">
+      <div class="settings-card-title">显示模式</div>
+      <div class="settings-card-sub">跟随系统会随手机的深色模式自动切换</div>
+      <div class="mode-row">
+        <button class="mode-chip selected" data-mode="system">跟随系统</button>
+        <button class="mode-chip" data-mode="light">浅色</button>
+        <button class="mode-chip" data-mode="dark">深色</button>
+      </div>
+    </section>
+
+    <section class="settings-card">
+      <div class="settings-card-title" style="display:flex;align-items:center;justify-content:space-between;">
+        <span>主题色</span><span id="accentName" style="font-size:12px;color:var(--aqua);">青碧</span>
+      </div>
+      <div class="settings-card-sub">圆环、按钮和强调色会一起变化</div>
+      <div class="swatches" id="swatches">
+        <button class="swatch aqua selected" data-accent="aqua" data-name="青碧" aria-label="青碧">✓</button>
+        <button class="swatch ocean" data-accent="ocean" data-name="海蓝" aria-label="海蓝"></button>
+        <button class="swatch violet" data-accent="violet" data-name="雾紫" aria-label="雾紫"></button>
+        <button class="swatch amber" data-accent="amber" data-name="暖金" aria-label="暖金"></button>
+        <button class="swatch rose" data-accent="rose" data-name="玫瑰" aria-label="玫瑰"></button>
+      </div>
+    </section>
+
+    <section class="settings-card">
+      <div class="settings-card-title">关于</div>
+      <div class="about-row">
+        <div class="about-logo">
+          <svg viewBox="0 0 24 26" fill="none">
+            <path d="M12 1.5C12 1.5 4.2 10.4 4.2 16.1c0 4.4 3.5 7.9 7.8 7.9s7.8-3.5 7.8-7.9C19.8 10.4 12 1.5 12 1.5Z" fill="#5ae8c8"/>
+            <path d="M8.8 15.1c0 2.5 1.4 4 3.4 4.4-2 .6-4.2-.7-4.2-3.3 0-2.1 1.4-5 2.6-6.6-1.2 2.4-1.8 4.1-1.8 5.5Z" fill="#c8ffe8" fill-opacity=".55"/>
+          </svg>
+        </div>
+        <div>
+          <div class="about-name">SipRing</div>
+          <div class="about-version">版本 0.0.3 · versionCode 3</div>
+        </div>
+      </div>
+      <div class="privacy-title">用户隐私声明</div>
+      <div class="privacy-text">
+        SipRing 只在你的手机本地运行，不申请网络权限，也不会把任何数据上传到服务器。<br><br>
+        应用会保存提醒间隔、提醒时段、显示模式、主题色和当前计时状态，仅存放在本机，用于恢复设置和计时，不会与第三方共享。<br><br>
+        卸载应用或清除应用数据后，以上数据会被删除。SipRing 不读取通讯录、相册、位置、麦克风、相机等信息，也不集成广告或统计 SDK。
+      </div>
+    </section>
+
+    <div class="settings-footer">SipRing v0.0.3 · LOCAL ONLY</div>
+  </div>
 
   <div class="navbar"><i></i></div>
 
@@ -735,6 +872,58 @@
     });
   });
 
+  // Settings preview
+  const phone = $('phone');
+  const settingsScreen = $('settingsScreen');
+  const accentDefs = {
+    aqua: ['#5ae8c8', '#63c9ff', '#c8ffe8'],
+    ocean: ['#66b5ff', '#8a8cff', '#d8e8ff'],
+    violet: ['#c39dff', '#7cdfff', '#ecd9ff'],
+    amber: ['#ffc66d', '#ff9d8a', '#ffe7b8'],
+    rose: ['#ff9dbb', '#ffc6d9', '#ffe2eb'],
+  };
+  function setAccent(name) {
+    const def = accentDefs[name] || accentDefs.aqua;
+    document.documentElement.style.setProperty('--aqua', def[0]);
+    document.documentElement.style.setProperty('--cyan', def[1]);
+    document.documentElement.style.setProperty('--mint', def[2]);
+    document.querySelectorAll('.swatch').forEach((swatch) => {
+      const selected = swatch.dataset.accent === name;
+      swatch.classList.toggle('selected', selected);
+      swatch.textContent = selected ? '✓' : '';
+    });
+    const chosen = document.querySelector('.swatch[data-accent="' + name + '"]');
+    $('accentName').textContent = chosen ? chosen.dataset.name : '青碧';
+    const stops = document.querySelectorAll('#arcGrad stop');
+    if (stops.length >= 4) {
+      stops[0].setAttribute('stop-color', def[1]);
+      stops[1].setAttribute('stop-color', def[0]);
+      stops[2].setAttribute('stop-color', def[2]);
+      stops[3].setAttribute('stop-color', def[0]);
+    }
+  }
+  function setMode(mode) {
+    phone.classList.toggle('light', mode === 'light');
+    document.querySelectorAll('.mode-chip').forEach((chip) => {
+      chip.classList.toggle('selected', chip.dataset.mode === mode);
+    });
+  }
+  $('settingsBtn').addEventListener('click', () => settingsScreen.classList.add('open'));
+  $('settingsBack').addEventListener('click', () => settingsScreen.classList.remove('open'));
+  document.querySelectorAll('.mode-chip').forEach((chip) => {
+    chip.addEventListener('click', () => setMode(chip.dataset.mode));
+  });
+  document.querySelectorAll('.swatch').forEach((swatch) => {
+    swatch.addEventListener('click', () => setAccent(swatch.dataset.accent));
+  });
+
+  const queryAccent = params.get('accent');
+  if (queryAccent) setAccent(queryAccent);
+  const queryTheme = params.get('theme');
+  if (queryTheme === 'light') setMode('light');
+  if (queryTheme === 'dark') setMode('dark');
+  if (params.get('settings') === '1') settingsScreen.classList.add('open');
+
   // Query-string states make README screenshots reproducible.
   if (params.get('state') === 'running') {
     state.running = true;
@@ -750,4 +939,5 @@
 </script>
 </body>
 </html>
+
 

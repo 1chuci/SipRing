@@ -36,6 +36,7 @@ import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.ScrollView;
 import android.widget.TextView;
@@ -60,7 +61,7 @@ public class MainActivity extends Activity {
     private TextView tvWindowSummary;
     private TextView btnWindowStart;
     private TextView btnWindowEnd;
-    private TextView tvVersion;
+    private ImageButton btnSettings;
     private TextView tvFooter;
     private TextView tvNotifyState;
     private TextView tvNotifyAction;
@@ -85,8 +86,9 @@ public class MainActivity extends Activity {
     private int uiWindowStart = -1;
     private int uiWindowEnd = -1;
     private long lastTapAt;
-    private String versionName = "0.0.2";
+    private String versionName = "0.0.3";
     private boolean uiReady;
+    private String appliedThemeSignature = "";
 
     private final Handler uiHandler = new Handler(Looper.getMainLooper());
 
@@ -137,7 +139,13 @@ public class MainActivity extends Activity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        try {
+            ThemeManager.applyTheme(this);
+        } catch (RuntimeException e) {
+            setTheme(R.style.Theme_SipRing);
+        }
         super.onCreate(savedInstanceState);
+        appliedThemeSignature = ThemeManager.signature(this);
         try {
             initializeUi();
         } catch (Throwable error) {
@@ -196,6 +204,12 @@ public class MainActivity extends Activity {
         if (!uiReady) {
             return;
         }
+        String signature = ThemeManager.signature(this);
+        if (!signature.equals(appliedThemeSignature)) {
+            appliedThemeSignature = signature;
+            recreate();
+            return;
+        }
         updatePermissionRows();
         refreshRunningNotification();
     }
@@ -225,7 +239,7 @@ public class MainActivity extends Activity {
         tvWindowSummary = findViewById(R.id.tvWindowSummary);
         btnWindowStart = findViewById(R.id.btnWindowStart);
         btnWindowEnd = findViewById(R.id.btnWindowEnd);
-        tvVersion = findViewById(R.id.tvVersion);
+        btnSettings = findViewById(R.id.btnSettings);
         tvFooter = findViewById(R.id.tvFooter);
         tvNotifyState = findViewById(R.id.tvNotifyState);
         tvNotifyAction = findViewById(R.id.tvNotifyAction);
@@ -245,6 +259,8 @@ public class MainActivity extends Activity {
         btnStop.setOnClickListener(v -> stopSession());
         btnWindowStart.setOnClickListener(v -> pickTime(true));
         btnWindowEnd.setOnClickListener(v -> pickTime(false));
+        btnSettings.setOnClickListener(v ->
+                startActivity(new Intent(this, SettingsActivity.class)));
         rowNotify.setOnClickListener(v -> onNotificationPermissionRow());
         rowBattery.setOnClickListener(v -> openBatteryOptimizationSettings());
         rowAlarm.setOnClickListener(v -> openExactAlarmSettings());
@@ -265,18 +281,11 @@ public class MainActivity extends Activity {
         } catch (PackageManager.NameNotFoundException ignored) {
             // Keep the fallback version.
         }
-        tvVersion.setText(getString(R.string.version_format, versionName));
         tvFooter.setText(getString(R.string.footer_version, versionName));
     }
 
     private void configureWindow() {
-        Window window = getWindow();
-        window.setStatusBarColor(Color.TRANSPARENT);
-        window.setNavigationBarColor(Color.TRANSPARENT);
-        window.getDecorView().setSystemUiVisibility(
-                View.SYSTEM_UI_FLAG_LAYOUT_STABLE
-                        | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
-                        | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION);
+        ThemeManager.configureSystemBars(this);
     }
 
     private void applyInsets() {
@@ -500,7 +509,7 @@ public class MainActivity extends Activity {
         input.setSelection(input.getText().length());
         input.setInputType(InputType.TYPE_CLASS_NUMBER);
 
-        AlertDialog dialog = new AlertDialog.Builder(this, R.style.SipRingDialog)
+        AlertDialog dialog = new AlertDialog.Builder(this, ThemeManager.dialogTheme(this))
                 .setView(content)
                 .setPositiveButton(R.string.save, null)
                 .setNegativeButton(R.string.cancel, null)
@@ -510,7 +519,7 @@ public class MainActivity extends Activity {
             Button positive = dialog.getButton(AlertDialog.BUTTON_POSITIVE);
             Button negative = dialog.getButton(AlertDialog.BUTTON_NEGATIVE);
             if (positive != null) {
-                positive.setTextColor(getColor(R.color.aqua));
+                positive.setTextColor(ThemeColors.get(this, R.attr.sipAccentText));
                 positive.setOnClickListener(v -> {
                     String raw = input.getText().toString().trim();
                     int value;
@@ -529,7 +538,7 @@ public class MainActivity extends Activity {
                 });
             }
             if (negative != null) {
-                negative.setTextColor(getColor(R.color.text_secondary));
+                negative.setTextColor(ThemeColors.get(this, R.attr.sipTextSecondary));
             }
             input.requestFocus();
             dialog.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE);
@@ -547,7 +556,7 @@ public class MainActivity extends Activity {
         int minutes = start ? windowStart : windowEnd;
         TimePickerDialog dialog = new TimePickerDialog(
                 this,
-                android.R.style.Theme_Material_Dialog_Alert,
+                ThemeManager.dialogTheme(this),
                 (TimePicker view, int hourOfDay, int minute) -> {
                     if (start) {
                         windowStart = hourOfDay * 60 + minute;
@@ -620,7 +629,7 @@ public class MainActivity extends Activity {
     }
 
     private void showNotificationPermissionDialog() {
-        new AlertDialog.Builder(this, R.style.SipRingDialog)
+        new AlertDialog.Builder(this, ThemeManager.dialogTheme(this))
                 .setTitle(R.string.notif_permission_title)
                 .setMessage(R.string.notif_permission_message)
                 .setPositiveButton(R.string.go_settings,
@@ -645,10 +654,14 @@ public class MainActivity extends Activity {
     }
 
     private void updatePermissionRows() {
+        int onColor = ThemeColors.get(this, R.attr.sipAccentText);
+        int offColor = ThemeColors.get(this, R.attr.sipWarning);
+        int neutralColor = ThemeColors.get(this, R.attr.sipTextSecondary);
+
         boolean notify = notificationsEnabled();
         tvNotifyState.setText(notify
                 ? R.string.permission_notify_on : R.string.permission_notify_off);
-        tvNotifyState.setTextColor(getColor(notify ? R.color.aqua : R.color.amber));
+        tvNotifyState.setTextColor(notify ? onColor : offColor);
         tvNotifyAction.setText(notify
                 ? R.string.manage : R.string.permission_notify_action);
 
@@ -656,7 +669,7 @@ public class MainActivity extends Activity {
         boolean battery = pm != null && pm.isIgnoringBatteryOptimizations(getPackageName());
         tvBatteryState.setText(battery
                 ? R.string.permission_battery_on : R.string.permission_battery_off);
-        tvBatteryState.setTextColor(getColor(battery ? R.color.aqua : R.color.amber));
+        tvBatteryState.setTextColor(battery ? onColor : offColor);
         tvBatteryAction.setText(battery
                 ? R.string.manage : R.string.permission_battery_action);
 
@@ -665,12 +678,12 @@ public class MainActivity extends Activity {
             boolean exact = canScheduleExactAlarms(am);
             tvAlarmState.setText(exact
                     ? R.string.permission_alarm_on : R.string.permission_alarm_off);
-            tvAlarmState.setTextColor(getColor(exact ? R.color.aqua : R.color.amber));
+            tvAlarmState.setTextColor(exact ? onColor : offColor);
             tvAlarmAction.setText(exact ? R.string.manage : R.string.permission_alarm_action);
             rowAlarm.setClickable(true);
         } else {
             tvAlarmState.setText(R.string.permission_alarm_na);
-            tvAlarmState.setTextColor(getColor(R.color.text_secondary));
+            tvAlarmState.setTextColor(neutralColor);
             tvAlarmAction.setText("");
             rowAlarm.setClickable(false);
         }
@@ -793,7 +806,7 @@ public class MainActivity extends Activity {
         String detail = Log.getStackTraceString(error);
         try {
             ScrollView fallback = new ScrollView(this);
-            fallback.setBackgroundColor(getColor(R.color.bg_deep));
+            fallback.setBackgroundColor(ThemeColors.get(this, R.attr.sipBg));
             fallback.setFillViewport(true);
 
             LinearLayout box = new LinearLayout(this);
@@ -802,14 +815,14 @@ public class MainActivity extends Activity {
 
             TextView title = new TextView(this);
             title.setText(R.string.startup_failed_title);
-            title.setTextColor(getColor(R.color.text_primary));
+            title.setTextColor(ThemeColors.get(this, R.attr.sipTextPrimary));
             title.setTextSize(TypedValue.COMPLEX_UNIT_SP, 22f);
             title.setTypeface(Typeface.create("sans-serif-medium", Typeface.NORMAL));
             box.addView(title);
 
             TextView hint = new TextView(this);
             hint.setText(R.string.startup_failed_hint);
-            hint.setTextColor(getColor(R.color.text_secondary));
+            hint.setTextColor(ThemeColors.get(this, R.attr.sipTextSecondary));
             hint.setTextSize(TypedValue.COMPLEX_UNIT_SP, 12f);
             hint.setLineSpacing(dp(3), 1f);
             LinearLayout.LayoutParams hintParams = new LinearLayout.LayoutParams(
@@ -821,7 +834,7 @@ public class MainActivity extends Activity {
             TextView text = new TextView(this);
             text.setText(detail);
             text.setTextIsSelectable(true);
-            text.setTextColor(getColor(R.color.text_faint));
+            text.setTextColor(ThemeColors.get(this, R.attr.sipTextFaint));
             text.setTextSize(TypedValue.COMPLEX_UNIT_SP, 9.5f);
             text.setTypeface(Typeface.MONOSPACE);
             text.setPadding(0, dp(14), 0, dp(14));

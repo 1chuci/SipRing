@@ -13,9 +13,10 @@
 ```text
 index.html?shot=1&state=idle
 index.html?shot=1&state=running&remaining=1453&interval=30
+index.html?shot=1&settings=1&theme=light&accent=ocean
 ```
 
-`shot=1` 固定为 390 × 844 无边框画布；`remaining` 单位为秒。
+`shot=1` 固定为 390 × 844 无边框画布；`remaining` 单位为秒；`settings=1` 打开设置页；`theme=light|dark`、`accent=aqua|ocean|violet|amber|rose` 用于主题预览。
 
 ## 生成截图
 

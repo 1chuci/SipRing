@@ -494,7 +494,7 @@ public class TimerService extends Service {
         String window = windowLabel();
         Notification.Builder builder = new Notification.Builder(this, CHANNEL_TIMER)
                 .setSmallIcon(R.drawable.ic_stat_drop)
-                .setColor(getColor(R.color.aqua))
+                .setColor(ThemeManager.notificationAccent(this))
                 .setContentTitle(getString(R.string.notif_timer_title))
                 .setContentText(paused
                         ? getString(R.string.notif_timer_paused)
@@ -556,7 +556,7 @@ public class TimerService extends Service {
 
         Notification notification = new Notification.Builder(this, CHANNEL_REMINDER)
                 .setSmallIcon(R.drawable.ic_stat_drop)
-                .setColor(getColor(R.color.aqua))
+                .setColor(ThemeManager.notificationAccent(this))
                 .setContentTitle(getString(R.string.notif_reminder_title))
                 .setContentText(getString(R.string.notif_reminder_text))
                 .setStyle(new Notification.BigTextStyle()
@@ -699,7 +699,7 @@ public class TimerService extends Service {
         reminder.enableVibration(true);
         reminder.setVibrationPattern(new long[]{0L, 260L, 140L, 260L});
         reminder.enableLights(true);
-        reminder.setLightColor(getColor(R.color.aqua));
+        reminder.setLightColor(ThemeManager.notificationAccent(this));
         reminder.setLockscreenVisibility(Notification.VISIBILITY_PUBLIC);
         AudioAttributes audio = new AudioAttributes.Builder()
                 .setUsage(AudioAttributes.USAGE_NOTIFICATION)
@@ -761,3 +761,4 @@ public class TimerService extends Service {
         }
     }
 }
+
