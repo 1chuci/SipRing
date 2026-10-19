@@ -6,7 +6,6 @@ import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.Service;
-import android.annotation.TargetApi;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.ServiceInfo;
@@ -20,6 +19,7 @@ import android.os.PowerManager;
 import android.provider.Settings;
 import android.util.Log;
 
+import java.lang.reflect.Method;
 import java.util.Calendar;
 import java.util.Locale;
 
@@ -139,17 +139,21 @@ public class TimerService extends Service {
             remainingMs = totalMs;
         }
 
-        createChannels();
-        PowerManager pm = (PowerManager) getSystemService(Context.POWER_SERVICE);
-        if (pm != null) {
-            wakeLock = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "SipRing:reminder");
-            wakeLock.setReferenceCounted(false);
+        createChannelsSafely();
+        try {
+            PowerManager pm = (PowerManager) getSystemService(Context.POWER_SERVICE);
+            if (pm != null) {
+                wakeLock = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "SipRing:reminder");
+                wakeLock.setReferenceCounted(false);
+            }
+        } catch (RuntimeException e) {
+            Log.w(TAG, "Unable to create wake lock", e);
         }
     }
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        createChannels();
+        createChannelsSafely();
         String action = intent != null ? intent.getAction() : null;
 
         if (action == null) {
@@ -452,7 +456,15 @@ public class TimerService extends Service {
         try {
             Notification notification = buildTimerNotification();
             if (Build.VERSION.SDK_INT >= 34) {
-                Api34.startForeground(this, NOTIF_TIMER_ID, notification);
+                try {
+                    Method method = Service.class.getMethod(
+                            "startForeground", int.class, Notification.class, int.class);
+                    method.invoke(this, NOTIF_TIMER_ID, notification,
+                            ServiceInfo.FOREGROUND_SERVICE_TYPE_SPECIAL_USE);
+                } catch (ReflectiveOperationException | RuntimeException e) {
+                    Log.w(TAG, "Typed foreground start unavailable", e);
+                    startForeground(NOTIF_TIMER_ID, notification);
+                }
             } else {
                 startForeground(NOTIF_TIMER_ID, notification);
             }
@@ -520,7 +532,7 @@ public class TimerService extends Service {
         builder.addAction(R.drawable.ic_bell, getString(R.string.notif_timer_stop), stop);
 
         if (Build.VERSION.SDK_INT >= 31) {
-            Api31.setImmediate(builder);
+            setForegroundImmediate(builder);
         }
         return builder.build();
     }
@@ -599,7 +611,7 @@ public class TimerService extends Service {
         long triggerAt = Math.max(System.currentTimeMillis() + 1_000L, targetWall);
         PendingIntent pi = alarmIntent();
         try {
-            if (Build.VERSION.SDK_INT >= 31 && !Api31.canScheduleExactAlarms(am)) {
+            if (Build.VERSION.SDK_INT >= 31 && !canScheduleExactAlarms(am)) {
                 am.setAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, triggerAt, pi);
             } else {
                 am.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, triggerAt, pi);
@@ -654,12 +666,19 @@ public class TimerService extends Service {
         }
     }
 
+    private void createChannelsSafely() {
+        try {
+            createChannels();
+        } catch (RuntimeException e) {
+            Log.e(TAG, "Unable to create notification channels", e);
+        }
+    }
+
     private void createChannels() {
         NotificationManager nm = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
         if (nm == null) {
             return;
         }
-
         NotificationChannel timer = new NotificationChannel(
                 CHANNEL_TIMER,
                 getString(R.string.notif_channel_timer),
@@ -716,22 +735,29 @@ public class TimerService extends Service {
                 clock);
     }
 
-    @TargetApi(31)
-    private static final class Api31 {
-        static boolean canScheduleExactAlarms(AlarmManager alarmManager) {
-            return alarmManager.canScheduleExactAlarms();
+    private boolean canScheduleExactAlarms(AlarmManager alarmManager) {
+        if (Build.VERSION.SDK_INT < 31 || alarmManager == null) {
+            return false;
         }
-
-        static void setImmediate(Notification.Builder builder) {
-            builder.setForegroundServiceBehavior(Notification.FOREGROUND_SERVICE_IMMEDIATE);
+        try {
+            Method method = AlarmManager.class.getMethod("canScheduleExactAlarms");
+            Object result = method.invoke(alarmManager);
+            return result instanceof Boolean && (Boolean) result;
+        } catch (ReflectiveOperationException | RuntimeException e) {
+            return false;
         }
     }
 
-    @TargetApi(34)
-    private static final class Api34 {
-        static void startForeground(Service service, int id, Notification notification) {
-            service.startForeground(id, notification,
-                    ServiceInfo.FOREGROUND_SERVICE_TYPE_SPECIAL_USE);
+    private void setForegroundImmediate(Notification.Builder builder) {
+        if (Build.VERSION.SDK_INT < 31) {
+            return;
+        }
+        try {
+            Method method = Notification.Builder.class.getMethod(
+                    "setForegroundServiceBehavior", int.class);
+            method.invoke(builder, Notification.FOREGROUND_SERVICE_IMMEDIATE);
+        } catch (ReflectiveOperationException | RuntimeException e) {
+            Log.w(TAG, "Unable to set foreground service behavior", e);
         }
     }
 }

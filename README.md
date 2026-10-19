@@ -1,6 +1,6 @@
 # SipRing · 喝水提醒
 
-> **v0.0.1** · 一个会认真提醒你喝水的小应用。  
+> **v0.0.2** · 一个会认真提醒你喝水的小应用。  
 > Android 8.0+（minSdk 26）· 原生 Java · 无网络权限 · 无第三方 UI 依赖
 
 <p align="center">
@@ -45,10 +45,10 @@ SipRing 只做一件事：在你设定的时间间隔和时段里，用通知提
 APK 位于：
 
 ```text
-dist/SipRing-0.0.1.apk
+dist/SipRing-0.0.2.apk
 ```
 
-直接下载：[`dist/SipRing-0.0.1.apk`](dist/SipRing-0.0.1.apk)
+直接下载：[`dist/SipRing-0.0.2.apk`](dist/SipRing-0.0.2.apk)
 
 1. 把 APK 发到手机（微信文件传输、数据线、网盘均可）。
 2. 点击安装；如系统提示「禁止未知来源」，允许当前文件管理器安装。
@@ -64,7 +64,7 @@ dist/SipRing-0.0.1.apk
 也可以使用 adb：
 
 ```bash
-adb install -r dist/SipRing-0.0.1.apk
+adb install -r dist/SipRing-0.0.2.apk
 ```
 
 > APK 使用仓库内的 `keystore/sipring-dev.jks` 开发签名。它可以正常侧载和覆盖升级；如果以后要上架应用商店，请换成自己的私密签名，不要继续使用这个仓库密钥。  
@@ -158,6 +158,7 @@ SipRing/
 │  ├─ AuroraView.java        背景光晕
 │  ├─ Prefs.java             本地设置与状态
 │  └─ TimerSnapshot.java     服务 → UI 的只读状态
+├─ app/src/test/             Robolectric 启动回归测试
 ├─ app/src/main/res/         布局、颜色、图标、主题
 ├─ preview/                  Web 互动预览与截图
 ├─ tools/make_icons.py       图标生成脚本
@@ -168,17 +169,27 @@ SipRing/
 
 ## 版本
 
-当前版本 **0.0.1**（versionCode `1`）。
+当前版本 **0.0.2**（versionCode `2`）。
 
 更新记录见 [CHANGELOG.md](CHANGELOG.md)。
 
 ## 已知限制
 
-- 这台构建环境没有 Android 真机或模拟器，APK 已通过 `aapt2`、`apksigner` 和 `lint` 校验，但尚未在真机上完整跑过；首次安装后如果有厂商适配问题，欢迎继续反馈。
+- 已用 Robolectric 在 API 26 / 29 / 31 / 33 / 34 上跑过 `MainActivity` 与 `TimerService` 启动测试；但构建环境没有真机或模拟器，尚未完成真机端到端测试。
+- 如果启动阶段遇到平台或厂商异常，0.0.2 会显示「SipRing 启动失败」错误页，而不是直接闪退；可以把错误页截图或「复制错误信息」的内容发回来。
 - 部分国产 ROM 会杀掉前台服务。SipRing 已尽量申请所需权限，但最终仍受系统策略影响。
 - 应用锁定竖屏，主要针对手机；平板会以竖屏居中显示。
-- 0.0.1 用前台服务 + 单次精确闹钟维持计时，没有做 WorkManager 链式补偿。
+- 0.0.2 用前台服务 + 单次精确闹钟维持计时，没有做 WorkManager 链式补偿。
+
+## 回归测试
+
+```bash
+./gradlew testDebugUnitTest
+```
+
+测试覆盖 `MainActivity` 启动、`TimerService` 创建、资源/主题加载和通知渠道创建，运行在 API 26 / 29 / 31 / 33 / 34。
 
 ## License
 
 [MIT](LICENSE)
+

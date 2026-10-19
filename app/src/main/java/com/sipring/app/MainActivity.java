@@ -2,11 +2,12 @@ package com.sipring.app;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
-import android.annotation.TargetApi;
 import android.app.Activity;
 import android.app.AlarmManager;
 import android.app.AlertDialog;
 import android.app.TimePickerDialog;
+import android.content.ClipData;
+import android.content.ClipboardManager;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
@@ -14,7 +15,6 @@ import android.content.ServiceConnection;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
-import android.graphics.Insets;
 import android.graphics.Typeface;
 import android.net.Uri;
 import android.os.Build;
@@ -26,12 +26,12 @@ import android.os.PowerManager;
 import android.os.SystemClock;
 import android.provider.Settings;
 import android.text.InputType;
+import android.util.Log;
 import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowInsets;
-import android.view.WindowInsetsController;
 import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
@@ -45,6 +45,7 @@ import android.widget.Toast;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+import java.lang.reflect.Method;
 
 /** Single-screen SipRing experience. */
 public class MainActivity extends Activity {
@@ -84,15 +85,25 @@ public class MainActivity extends Activity {
     private int uiWindowStart = -1;
     private int uiWindowEnd = -1;
     private long lastTapAt;
-    private String versionName = "0.0.1";
+    private String versionName = "0.0.2";
+    private boolean uiReady;
 
     private final Handler uiHandler = new Handler(Looper.getMainLooper());
 
     private final Runnable uiTick = new Runnable() {
         @Override
         public void run() {
+            if (!uiReady) {
+                return;
+            }
             if (binder != null) {
-                render(binder.snapshot());
+                try {
+                    render(binder.snapshot());
+                } catch (RuntimeException e) {
+                    Log.e("SipRing", "Unable to render timer state", e);
+                    showStartupError(e);
+                    return;
+                }
             }
             uiHandler.postDelayed(this, 200L);
         }
@@ -101,8 +112,16 @@ public class MainActivity extends Activity {
     private final ServiceConnection serviceConnection = new ServiceConnection() {
         @Override
         public void onServiceConnected(ComponentName name, IBinder service) {
+            if (!uiReady || !(service instanceof TimerService.LocalBinder)) {
+                return;
+            }
             binder = (TimerService.LocalBinder) service;
-            render(binder.snapshot());
+            try {
+                render(binder.snapshot());
+            } catch (RuntimeException e) {
+                Log.e("SipRing", "Unable to render service state", e);
+                showStartupError(e);
+            }
         }
 
         @Override
@@ -119,6 +138,15 @@ public class MainActivity extends Activity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        try {
+            initializeUi();
+        } catch (Throwable error) {
+            Log.e("SipRing", "Startup failed", error);
+            showStartupError(error);
+        }
+    }
+
+    private void initializeUi() {
         configureWindow();
         setContentView(R.layout.activity_main);
 
@@ -142,13 +170,22 @@ public class MainActivity extends Activity {
         } else {
             renderIdleLocal();
         }
+        uiReady = true;
     }
 
     @Override
     protected void onStart() {
         super.onStart();
+        if (!uiReady) {
+            return;
+        }
         Intent intent = new Intent(this, TimerService.class);
-        bound = bindService(intent, serviceConnection, Context.BIND_AUTO_CREATE);
+        try {
+            bound = bindService(intent, serviceConnection, Context.BIND_AUTO_CREATE);
+        } catch (RuntimeException e) {
+            Log.e("SipRing", "Unable to bind timer service", e);
+            bound = false;
+        }
         uiHandler.removeCallbacks(uiTick);
         uiHandler.post(uiTick);
     }
@@ -156,6 +193,9 @@ public class MainActivity extends Activity {
     @Override
     protected void onResume() {
         super.onResume();
+        if (!uiReady) {
+            return;
+        }
         updatePermissionRows();
         refreshRunningNotification();
     }
@@ -233,32 +273,17 @@ public class MainActivity extends Activity {
         Window window = getWindow();
         window.setStatusBarColor(Color.TRANSPARENT);
         window.setNavigationBarColor(Color.TRANSPARENT);
-        if (Build.VERSION.SDK_INT >= 30) {
-            Api30.configureWindow(window);
-        } else {
-            if (Build.VERSION.SDK_INT >= 29) {
-                Api29.configureWindow(window);
-            }
-            window.getDecorView().setSystemUiVisibility(
-                    View.SYSTEM_UI_FLAG_LAYOUT_STABLE
-                            | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
-                            | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION);
-        }
+        window.getDecorView().setSystemUiVisibility(
+                View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+                        | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
+                        | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION);
     }
 
     private void applyInsets() {
         View root = findViewById(R.id.root);
         root.setOnApplyWindowInsetsListener((v, insets) -> {
-            int top;
-            int bottom;
-            if (Build.VERSION.SDK_INT >= 30) {
-                int[] bars = Api30.systemBars(insets);
-                top = bars[0];
-                bottom = bars[1];
-            } else {
-                top = insets.getSystemWindowInsetTop();
-                bottom = insets.getSystemWindowInsetBottom();
-            }
+            int top = insets.getSystemWindowInsetTop();
+            int bottom = insets.getSystemWindowInsetBottom();
             scroll.setPadding(0, top + dp(8), 0, bottom + dp(16));
             return insets;
         });
@@ -637,7 +662,7 @@ public class MainActivity extends Activity {
 
         if (Build.VERSION.SDK_INT >= 31) {
             AlarmManager am = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
-            boolean exact = am != null && am.canScheduleExactAlarms();
+            boolean exact = canScheduleExactAlarms(am);
             tvAlarmState.setText(exact
                     ? R.string.permission_alarm_on : R.string.permission_alarm_off);
             tvAlarmState.setTextColor(getColor(exact ? R.color.aqua : R.color.amber));
@@ -648,6 +673,23 @@ public class MainActivity extends Activity {
             tvAlarmState.setTextColor(getColor(R.color.text_secondary));
             tvAlarmAction.setText("");
             rowAlarm.setClickable(false);
+        }
+    }
+
+    /**
+     * Reflection keeps this method off the launch path on Android 8–11, where
+     * AlarmManager#canScheduleExactAlarms does not exist yet.
+     */
+    private boolean canScheduleExactAlarms(AlarmManager alarmManager) {
+        if (Build.VERSION.SDK_INT < 31 || alarmManager == null) {
+            return false;
+        }
+        try {
+            Method method = AlarmManager.class.getMethod("canScheduleExactAlarms");
+            Object result = method.invoke(alarmManager);
+            return result instanceof Boolean && (Boolean) result;
+        } catch (ReflectiveOperationException | RuntimeException e) {
+            return false;
         }
     }
 
@@ -741,6 +783,84 @@ public class MainActivity extends Activity {
         }
     }
 
+    /**
+     * If the platform rejects a theme/resource at startup, showing the actual
+     * exception is far more useful than flashing back to the launcher.
+     */
+    private void showStartupError(Throwable error) {
+        uiReady = false;
+        uiHandler.removeCallbacks(uiTick);
+        String detail = Log.getStackTraceString(error);
+        try {
+            ScrollView fallback = new ScrollView(this);
+            fallback.setBackgroundColor(getColor(R.color.bg_deep));
+            fallback.setFillViewport(true);
+
+            LinearLayout box = new LinearLayout(this);
+            box.setOrientation(LinearLayout.VERTICAL);
+            box.setPadding(dp(24), dp(28), dp(24), dp(28));
+
+            TextView title = new TextView(this);
+            title.setText(R.string.startup_failed_title);
+            title.setTextColor(getColor(R.color.text_primary));
+            title.setTextSize(TypedValue.COMPLEX_UNIT_SP, 22f);
+            title.setTypeface(Typeface.create("sans-serif-medium", Typeface.NORMAL));
+            box.addView(title);
+
+            TextView hint = new TextView(this);
+            hint.setText(R.string.startup_failed_hint);
+            hint.setTextColor(getColor(R.color.text_secondary));
+            hint.setTextSize(TypedValue.COMPLEX_UNIT_SP, 12f);
+            hint.setLineSpacing(dp(3), 1f);
+            LinearLayout.LayoutParams hintParams = new LinearLayout.LayoutParams(
+                    LinearLayout.LayoutParams.MATCH_PARENT,
+                    LinearLayout.LayoutParams.WRAP_CONTENT);
+            hintParams.topMargin = dp(10);
+            box.addView(hint, hintParams);
+
+            TextView text = new TextView(this);
+            text.setText(detail);
+            text.setTextIsSelectable(true);
+            text.setTextColor(getColor(R.color.text_faint));
+            text.setTextSize(TypedValue.COMPLEX_UNIT_SP, 9.5f);
+            text.setTypeface(Typeface.MONOSPACE);
+            text.setPadding(0, dp(14), 0, dp(14));
+            box.addView(text);
+
+            Button copy = new Button(this);
+            copy.setText(R.string.copy_error);
+            copy.setOnClickListener(v -> {
+                ClipboardManager clipboard =
+                        (ClipboardManager) getSystemService(CLIPBOARD_SERVICE);
+                if (clipboard != null) {
+                    clipboard.setPrimaryClip(ClipData.newPlainText("SipRing crash", detail));
+                    toast(R.string.copied);
+                }
+            });
+            box.addView(copy);
+
+            Button close = new Button(this);
+            close.setText(R.string.close);
+            close.setOnClickListener(v -> finish());
+            LinearLayout.LayoutParams closeParams = new LinearLayout.LayoutParams(
+                    LinearLayout.LayoutParams.MATCH_PARENT,
+                    LinearLayout.LayoutParams.WRAP_CONTENT);
+            closeParams.topMargin = dp(6);
+            box.addView(close, closeParams);
+
+            fallback.addView(box);
+            setContentView(fallback);
+        } catch (Throwable fallbackError) {
+            TextView text = new TextView(this);
+            text.setText(detail);
+            text.setTextIsSelectable(true);
+            text.setTextColor(Color.WHITE);
+            text.setBackgroundColor(Color.BLACK);
+            text.setPadding(dp(20), dp(20), dp(20), dp(20));
+            setContentView(text);
+        }
+    }
+
     private String windowLabel(int start, int end) {
         if (start == end) {
             return getString(R.string.window_all_day);
@@ -769,35 +889,5 @@ public class MainActivity extends Activity {
 
     private int dp(int value) {
         return Math.round(value * getResources().getDisplayMetrics().density);
-    }
-
-    /** Kept separate so API 29/30 classes are never loaded on Android 8.x. */
-    @TargetApi(30)
-    private static final class Api30 {
-        static void configureWindow(Window window) {
-            window.setDecorFitsSystemWindows(false);
-            window.setStatusBarContrastEnforced(false);
-            window.setNavigationBarContrastEnforced(false);
-            WindowInsetsController controller = window.getInsetsController();
-            if (controller != null) {
-                controller.setSystemBarsAppearance(0,
-                        WindowInsetsController.APPEARANCE_LIGHT_STATUS_BARS
-                                | WindowInsetsController.APPEARANCE_LIGHT_NAVIGATION_BARS);
-            }
-        }
-
-        static int[] systemBars(WindowInsets insets) {
-            Insets bars = insets.getInsets(
-                    WindowInsets.Type.systemBars() | WindowInsets.Type.displayCutout());
-            return new int[]{bars.top, bars.bottom};
-        }
-    }
-
-    @TargetApi(29)
-    private static final class Api29 {
-        static void configureWindow(Window window) {
-            window.setStatusBarContrastEnforced(false);
-            window.setNavigationBarContrastEnforced(false);
-        }
     }
 }

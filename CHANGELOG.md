@@ -2,6 +2,29 @@
 
 All notable changes to SipRing are documented here.
 
+## [0.0.2] — 2026-10-19
+
+Crash-fix release. `versionCode 2`.
+
+### Fixed
+
+- 移除了启动路径上对 Android 10 / 11 / 12 新 API 的直接引用（`WindowInsetsController`、`android.graphics.Insets`、`WindowInsets.Type`、`setDecorFitsSystemWindows`、`AlarmManager.canScheduleExactAlarms`）。这些引用在低版本系统上可能在类校验阶段导致点击图标即闪退。
+- `onServiceConnected` 现在会校验 `IBinder` 类型并处理空值，避免服务绑定异常时 `NullPointerException`。
+- 前台服务启动、`startForeground` 类型、精准闹钟查询、通知前台行为全部改为兼容分支 + 反射调用，避免 API 26–33 设备直接解析不存在的方法。
+- 通知渠道、计时服务、Activity 启动均补了回归测试。
+- 通知渠道或 WakeLock 初始化失败时只记录日志，不再让服务创建过程拖垮启动。
+- 启动阶段如果仍遇到平台/厂商异常，会显示「SipRing 启动失败」错误页，可一键复制完整堆栈，不再直接闪退。
+
+### Added
+
+- 基于 Robolectric 的启动回归测试，覆盖 Android 8 / 10 / 12 / 13 / 14（API 26 / 29 / 31 / 33 / 34）。
+- 测试会同时创建 `MainActivity` 和 `TimerService`，验证资源加载、主题、通知渠道和绑定路径。
+
+### Notes
+
+- 0.0.1 的旧 APK 可以直接覆盖安装 0.0.2；两者使用同一开发签名。
+- 如果 0.0.2 仍然闪退，需要真机 `logcat` 才能定位厂商定制问题；请抓取 `AndroidRuntime` / `com.sipring.app` 相关日志。
+
 ## [0.0.1] — 2026-10-19
 
 First installable release. `versionCode 1`.
