@@ -86,7 +86,7 @@ public class MainActivity extends Activity {
     private int uiWindowStart = -1;
     private int uiWindowEnd = -1;
     private long lastTapAt;
-    private String versionName = "0.0.6";
+    private String versionName = "0.0.7";
     private boolean uiReady;
     private String appliedThemeSignature = "";
 
@@ -483,7 +483,7 @@ public class MainActivity extends Activity {
     }
 
     private void setIntervalMinutes(int minutes) {
-        minutes = Prefs.clamp(minutes, 5, 180);
+        minutes = Prefs.clamp(minutes, 1, 180);
         if (minutes == interval) {
             return;
         }
@@ -529,7 +529,7 @@ public class MainActivity extends Activity {
                         input.setError(getString(R.string.invalid_interval));
                         return;
                     }
-                    if (value < 5 || value > 180) {
+                    if (value < 1 || value > 180) {
                         input.setError(getString(R.string.invalid_interval));
                         return;
                     }
@@ -904,5 +904,7 @@ public class MainActivity extends Activity {
         return Math.round(value * getResources().getDisplayMetrics().density);
     }
 }
+
+
 
 

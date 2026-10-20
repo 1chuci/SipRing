@@ -32,7 +32,7 @@ final class Prefs {
     }
 
     static int interval(Context context) {
-        return clamp(get(context).getInt(KEY_INTERVAL, DEFAULT_INTERVAL), 5, 180);
+        return clamp(get(context).getInt(KEY_INTERVAL, DEFAULT_INTERVAL), 1, 180);
     }
 
     static int windowStart(Context context) {
@@ -64,7 +64,7 @@ final class Prefs {
     }
 
     static void setInterval(Context context, int minutes) {
-        get(context).edit().putInt(KEY_INTERVAL, clamp(minutes, 5, 180)).apply();
+        get(context).edit().putInt(KEY_INTERVAL, clamp(minutes, 1, 180)).apply();
     }
 
     static void setWindow(Context context, int start, int end) {
@@ -131,3 +131,4 @@ final class Prefs {
         return Math.max(min, Math.min(max, value));
     }
 }
+

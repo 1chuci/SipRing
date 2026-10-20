@@ -2,6 +2,20 @@
 
 All notable changes to SipRing are documented here.
 
+## [0.0.7] — 2026-10-20
+
+One-minute minimum interval. `versionCode 7`.
+
+### Changed
+
+- 提醒间隔最小值从 5 分钟改为 **1 分钟**，输入框、校验和提示同步调整。
+- 自定义间隔范围现在是 **1–180 分钟**。
+- 1 分钟间隔会正常走前台服务、精确闹钟和强提醒流程；倒计时每秒刷新。
+
+### Tests
+
+- 全部 18 个启动/主题/对话框/渲染测试继续通过，覆盖 API 26 / 29 / 31 / 33 / 34。
+
 ## [0.0.6] — 2026-10-20
 
 Foreground-page reminder fix. `versionCode 6`.

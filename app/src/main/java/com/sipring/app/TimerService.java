@@ -263,7 +263,7 @@ public class TimerService extends Service {
     }
 
     private void startSession(int interval, int start, int end) {
-        intervalMinutes = Prefs.clamp(interval, 5, 180);
+        intervalMinutes = Prefs.clamp(interval, 1, 180);
         windowStart = Prefs.clamp(start, 0, 1439);
         windowEnd = Prefs.clamp(end, 0, 1439);
         long intervalMs = intervalMinutes * 60_000L;
@@ -366,7 +366,7 @@ public class TimerService extends Service {
     }
 
     private void setIntervalMinutes(int minutes) {
-        intervalMinutes = Prefs.clamp(minutes, 5, 180);
+        intervalMinutes = Prefs.clamp(minutes, 1, 180);
         totalMs = intervalMinutes * 60_000L;
         Prefs.setInterval(this, intervalMinutes);
         if (running) {
@@ -816,4 +816,5 @@ public class TimerService extends Service {
         }
     }
 }
+
 

@@ -57,12 +57,12 @@
     <string name="interval_every">每 %1$d 分钟</string>
     <string name="interval_custom">自定义</string>
     <string name="interval_dialog_title">自定义提醒间隔</string>
-    <string name="interval_dialog_hint">5 – 180 分钟</string>
+    <string name="interval_dialog_hint">1 – 180 分钟</string>
     <string name="interval_dialog_note">建议 30–60 分钟。少量多次，比一次猛喝更好。</string>
     <string name="save">保存</string>
     <string name="cancel">取消</string>
     <string name="manage">管理</string>
-    <string name="invalid_interval">请输入 5 到 180 之间的分钟数</string>
+    <string name="invalid_interval">请输入 1 到 180 之间的分钟数</string>
 
     <string name="window_title">提醒时段</string>
     <string name="window_subtitle">只在此时段内提醒，避免夜里被打扰</string>
@@ -142,3 +142,4 @@
     <string name="copied">已复制</string>
     <string name="close">关闭</string>
 </resources>
+

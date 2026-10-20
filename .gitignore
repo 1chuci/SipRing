@@ -9,7 +9,7 @@ captures/
 .cxx/
 app/build/
 dist/*.apk
-!dist/SipRing-0.0.6.apk
+!dist/SipRing-0.0.7.apk
 preview/*.png
 !preview/preview-idle.png
 !preview/preview-running.png
@@ -17,5 +17,6 @@ preview/*.png
 !preview/preview-long.png
 !preview/preview-reminder.png
 !preview/icon.png
+
 
 

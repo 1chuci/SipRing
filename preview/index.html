@@ -510,7 +510,7 @@
       <div class="privacy">无网络权限 · 不收集任何数据</div>
     </section>
 
-    <div class="footer">v0.0.6 · MADE FOR ONE SMALL HABIT</div>
+    <div class="footer">v0.0.7 · MADE FOR ONE SMALL HABIT</div>
   </main>
 
   <div class="settings-screen" id="settingsScreen">
@@ -569,7 +569,7 @@
         </div>
         <div>
           <div class="about-name">SipRing</div>
-          <div class="about-version">版本 0.0.6 · versionCode 6</div>
+          <div class="about-version">版本 0.0.7 · versionCode 7</div>
         </div>
       </div>
       <div class="privacy-title">用户隐私声明</div>
@@ -580,7 +580,7 @@
       </div>
     </section>
 
-    <div class="settings-footer">SipRing v0.0.6 · LOCAL ONLY</div>
+    <div class="settings-footer">SipRing v0.0.7 · LOCAL ONLY</div>
   </div>
 
   <div class="navbar"><i></i></div>
@@ -593,8 +593,8 @@
   <div class="modal-backdrop" id="customModal" hidden>
     <div class="modal">
       <h3>自定义提醒间隔</h3>
-      <input id="customInput" type="number" min="5" max="180" inputmode="numeric" value="30" aria-label="提醒间隔分钟数">
-      <p>输入 5 – 180 分钟。建议 30–60 分钟，少量多次比一次猛喝更好。</p>
+      <input id="customInput" type="number" min="1" max="180" inputmode="numeric" value="30" aria-label="提醒间隔分钟数">
+      <p>输入 1 – 180 分钟。建议 30–60 分钟，少量多次比一次猛喝更好。</p>
       <div class="modal-actions">
         <button class="ghost" data-close="customModal">取消</button>
         <button class="primary" id="customSave">保存</button>
@@ -851,7 +851,7 @@
 
   $('customSave').addEventListener('click', () => {
     const value = parseInt($('customInput').value, 10);
-    if (!Number.isFinite(value) || value < 5 || value > 180) {
+    if (!Number.isFinite(value) || value < 1 || value > 180) {
       $('customInput').style.borderColor = 'rgba(255,157,140,.7)';
       return;
     }
@@ -980,6 +980,9 @@
 </script>
 </body>
 </html>
+
+
+
 
 
 
