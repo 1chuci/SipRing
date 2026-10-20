@@ -4,6 +4,7 @@
     <!-- Notifications are the whole point of SipRing. -->
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
     <uses-permission android:name="android.permission.VIBRATE" />
+    <uses-permission android:name="android.permission.USE_FULL_SCREEN_INTENT" />
 
     <!-- A foreground timer keeps the countdown alive while the screen is off. -->
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
@@ -47,6 +48,16 @@
             android:exported="false"
             android:screenOrientation="portrait"
             android:theme="@style/Theme.SipRing" />
+
+        <activity
+            android:name=".ReminderActivity"
+            android:excludeFromRecents="true"
+            android:exported="false"
+            android:launchMode="singleTop"
+            android:screenOrientation="portrait"
+            android:showWhenLocked="true"
+            android:theme="@style/Theme.SipRing"
+            android:turnScreenOn="true" />
 
         <service
             android:name=".TimerService"

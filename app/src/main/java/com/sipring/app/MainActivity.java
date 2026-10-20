@@ -86,7 +86,7 @@ public class MainActivity extends Activity {
     private int uiWindowStart = -1;
     private int uiWindowEnd = -1;
     private long lastTapAt;
-    private String versionName = "0.0.4";
+    private String versionName = "0.0.5";
     private boolean uiReady;
     private String appliedThemeSignature = "";
 
@@ -904,3 +904,4 @@ public class MainActivity extends Activity {
         return Math.round(value * getResources().getDisplayMetrics().density);
     }
 }
+

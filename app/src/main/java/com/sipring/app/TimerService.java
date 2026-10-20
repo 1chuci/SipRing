@@ -40,6 +40,7 @@ public class TimerService extends Service {
     public static final String ACTION_RESUME = "com.sipring.app.action.RESUME";
     public static final String ACTION_STOP = "com.sipring.app.action.STOP";
     public static final String ACTION_DRANK = "com.sipring.app.action.DRANK";
+    public static final String ACTION_SNOOZE = "com.sipring.app.action.SNOOZE";
     public static final String ACTION_ALARM = "com.sipring.app.action.ALARM";
 
     public static final String EXTRA_INTERVAL = "extra_interval";
@@ -201,6 +202,9 @@ public class TimerService extends Service {
                     restartFromNow();
                 }
                 break;
+            case ACTION_SNOOZE:
+                snoozeTimer();
+                break;
             case ACTION_ALARM:
                 if (running && !paused) {
                     acquireWakeLock();
@@ -340,6 +344,21 @@ public class TimerService extends Service {
         targetWall = scheduleAfter(System.currentTimeMillis(), intervalMs);
         remainingMs = Math.max(0L, targetWall - System.currentTimeMillis());
         totalMs = Math.max(intervalMs, remainingMs);
+        saveState();
+        ensureForeground();
+        scheduleAlarm();
+        startTicker();
+        updateTimerNotification();
+    }
+
+    private void snoozeTimer() {
+        long delay = 10 * 60_000L;
+        running = true;
+        paused = false;
+        totalMs = delay;
+        remainingMs = delay;
+        targetWall = System.currentTimeMillis() + delay;
+        cancelReminderNotification();
         saveState();
         ensureForeground();
         scheduleAlarm();
@@ -569,26 +588,43 @@ public class TimerService extends Service {
                 new Intent(this, TimerService.class).setAction(ACTION_PAUSE),
                 PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
 
-        Notification notification = new Notification.Builder(this, CHANNEL_REMINDER)
+        Intent reminderIntent = new Intent(this, ReminderActivity.class)
+                .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK
+                        | Intent.FLAG_ACTIVITY_CLEAR_TOP
+                        | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+        PendingIntent fullScreen = PendingIntent.getActivity(
+                this,
+                80,
+                reminderIntent,
+                PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
+
+        boolean strong = Prefs.strongReminder(this);
+        Notification.Builder builder = new Notification.Builder(this, CHANNEL_REMINDER)
                 .setSmallIcon(R.drawable.ic_stat_drop)
                 .setColor(ThemeManager.notificationAccent(this))
                 .setContentTitle(getString(R.string.notif_reminder_title))
                 .setContentText(getString(R.string.notif_reminder_text))
                 .setStyle(new Notification.BigTextStyle()
                         .bigText(getString(R.string.notif_reminder_big, nextReminderLabel())))
-                .setContentIntent(openAppIntent())
+                .setContentIntent(fullScreen)
                 .setAutoCancel(true)
-                .setCategory(Notification.CATEGORY_REMINDER)
-                .setPriority(Notification.PRIORITY_HIGH)
                 .setVisibility(Notification.VISIBILITY_PUBLIC)
                 .setWhen(System.currentTimeMillis())
                 .setOnlyAlertOnce(false)
                 .addAction(R.drawable.ic_stat_drop, getString(R.string.notif_drank), drank)
-                .addAction(R.drawable.ic_bell, getString(R.string.notif_timer_pause), pause)
-                .build();
+                .addAction(R.drawable.ic_bell, getString(R.string.notif_timer_pause), pause);
+
+        if (strong) {
+            builder.setFullScreenIntent(fullScreen, true)
+                    .setCategory(Notification.CATEGORY_ALARM)
+                    .setPriority(Notification.PRIORITY_MAX);
+        } else {
+            builder.setCategory(Notification.CATEGORY_REMINDER)
+                    .setPriority(Notification.PRIORITY_HIGH);
+        }
 
         try {
-            nm.notify(NOTIF_REMINDER_ID, notification);
+            nm.notify(NOTIF_REMINDER_ID, builder.build());
         } catch (RuntimeException e) {
             Log.w(TAG, "Unable to post reminder", e);
         }

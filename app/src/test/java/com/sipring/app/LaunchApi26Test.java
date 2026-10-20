@@ -32,4 +32,12 @@ public class LaunchApi26Test {
         assertNotNull(controller.create().get());
         controller.destroy();
     }
+
+    @Test
+    public void reminderActivityLaunchesOnAndroid8() {
+        ActivityController<ReminderActivity> controller =
+                Robolectric.buildActivity(ReminderActivity.class);
+        assertNotNull(controller.setup().get());
+        controller.pause().stop().destroy();
+    }
 }

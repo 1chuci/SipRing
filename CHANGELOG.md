@@ -2,6 +2,29 @@
 
 All notable changes to SipRing are documented here.
 
+## [0.0.5] — 2026-10-20
+
+Strong-reminder release. `versionCode 5`.
+
+### Added
+
+- 全屏强提醒：锁屏时点亮屏幕并打开「该喝水了」页面，而不是只发一条通知。
+- 强提醒页面：脉冲水滴动画、大标题、当前时间、「我喝了」「10 分钟后再提醒」「暂停提醒」。
+- 强提醒持续震动最长 20 秒，页面关闭后自动停止。
+- 通知使用全屏 Intent、`CATEGORY_ALARM` 和最高优先级；未锁屏时仍会高亮提示。
+- 设置页新增「提醒强度」：可开关全屏强提醒、查看/申请 Android 14 全屏提醒权限、发送一次测试提醒。
+- 10 分钟稍后提醒（Snooze）会重新安排一次短倒计时，并保留原提醒间隔。
+- 新增全屏提醒页面预览和 Robolectric 渲染验证。
+
+### Android 14
+
+- Android 14 起，非闹钟/通话类应用的全屏提醒权限需要用户手动允许。设置页会显示状态并提供「去允许」入口；未允许时仍会发送高优先级通知。
+
+### Tests
+
+- 新增 Android 8 / Android 14 的 `ReminderActivity` 启动测试，以及全屏提醒页面的原生图形渲染测试。
+- 全部 18 个测试通过，覆盖 API 26 / 29 / 31 / 33 / 34。
+
 ## [0.0.4] — 2026-10-19
 
 Long-interval countdown display fix. `versionCode 4`.

@@ -18,6 +18,7 @@ final class Prefs {
     private static final String KEY_NOTIF_REQUESTED = "notif_requested";
     private static final String KEY_THEME_MODE = "theme_mode";
     private static final String KEY_ACCENT = "accent";
+    private static final String KEY_STRONG_REMINDER = "strong_reminder";
 
     static final int DEFAULT_INTERVAL = 30;
     static final int DEFAULT_WINDOW_START = 8 * 60;
@@ -116,6 +117,14 @@ final class Prefs {
 
     static void setAccent(Context context, String accent) {
         get(context).edit().putString(KEY_ACCENT, accent).apply();
+    }
+
+    static boolean strongReminder(Context context) {
+        return get(context).getBoolean(KEY_STRONG_REMINDER, true);
+    }
+
+    static void setStrongReminder(Context context, boolean strong) {
+        get(context).edit().putBoolean(KEY_STRONG_REMINDER, strong).apply();
     }
 
     static int clamp(int value, int min, int max) {

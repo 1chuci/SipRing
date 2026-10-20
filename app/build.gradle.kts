@@ -20,8 +20,8 @@ android {
         applicationId = "com.sipring.app"
         minSdk = 26
         targetSdk = 35
-        versionCode = 4
-        versionName = "0.0.4"
+        versionCode = 5
+        versionName = "0.0.5"
 
         vectorDrawables.useSupportLibrary = false
     }
@@ -73,3 +73,4 @@ dependencies {
     testImplementation("junit:junit:4.13.2")
     testImplementation("org.robolectric:robolectric:4.14.1")
 }
+

@@ -39,7 +39,7 @@ jobs:
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
-          name: SipRing-0.0.4
+          name: SipRing-0.0.5
           path: app/build/outputs/apk/release/app-release.apk
           if-no-files-found: error
 
@@ -50,3 +50,4 @@ jobs:
           name: lint-report
           path: app/build/reports/lint-results-release.html
           if-no-files-found: ignore
+

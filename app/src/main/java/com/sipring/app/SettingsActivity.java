@@ -1,18 +1,26 @@
 package com.sipring.app;
 
 import android.app.Activity;
+import android.app.NotificationManager;
+import android.content.Intent;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.graphics.Typeface;
 import android.graphics.drawable.GradientDrawable;
+import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
+import android.provider.Settings;
 import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.View;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.ScrollView;
+import android.widget.Switch;
 import android.widget.TextView;
+
+import java.lang.reflect.Method;
 
 /** Appearance settings and the local privacy statement. */
 public class SettingsActivity extends Activity {
@@ -22,9 +30,14 @@ public class SettingsActivity extends Activity {
     private TextView tvAccentName;
     private TextView tvVersion;
     private TextView tvFooter;
+    private TextView tvStrongState;
+    private TextView tvFullScreenState;
+    private TextView tvFullScreenAction;
+    private Switch switchStrong;
+    private LinearLayout rowFullScreen;
     private ScrollView scroll;
-    private String versionName = "0.0.4";
-    private int versionCode = 4;
+    private String versionName = "0.0.5";
+    private int versionCode = 5;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -45,11 +58,102 @@ public class SettingsActivity extends Activity {
         scroll = findViewById(R.id.scroll);
         ImageButton back = findViewById(R.id.btnBack);
         back.setOnClickListener(v -> finish());
+        setupStrongReminder();
 
         applyInsets();
         readVersion();
         buildModeButtons();
         buildAccentSwatches();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        updateFullScreenRow();
+    }
+
+    private void setupStrongReminder() {
+        switchStrong = findViewById(R.id.switchStrong);
+        rowFullScreen = findViewById(R.id.rowFullScreen);
+        tvStrongState = findViewById(R.id.tvStrongState);
+        tvFullScreenState = findViewById(R.id.tvFullScreenState);
+        tvFullScreenAction = findViewById(R.id.tvFullScreenAction);
+        TextView test = findViewById(R.id.btnTestReminder);
+
+        switchStrong.setChecked(Prefs.strongReminder(this));
+        switchStrong.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            Prefs.setStrongReminder(this, isChecked);
+            updateStrongState();
+        });
+        updateStrongState();
+
+        rowFullScreen.setOnClickListener(v -> openFullScreenSettings());
+        test.setOnClickListener(v -> startActivity(new Intent(this, ReminderActivity.class)
+                .putExtra(ReminderActivity.EXTRA_TEST, true)
+                .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)));
+        updateFullScreenRow();
+    }
+
+    private void updateStrongState() {
+        boolean strong = Prefs.strongReminder(this);
+        tvStrongState.setText(strong
+                ? R.string.strong_reminder_on : R.string.strong_reminder_off);
+        tvStrongState.setTextColor(ThemeColors.get(this,
+                strong ? R.attr.sipAccentText : R.attr.sipTextFaint));
+    }
+
+    private void updateFullScreenRow() {
+        if (Build.VERSION.SDK_INT < 34) {
+            tvFullScreenState.setText(R.string.full_screen_system);
+            tvFullScreenState.setTextColor(ThemeColors.get(this, R.attr.sipTextSecondary));
+            tvFullScreenAction.setText("");
+            rowFullScreen.setClickable(false);
+            return;
+        }
+        boolean allowed = canUseFullScreenIntent();
+        tvFullScreenState.setText(allowed
+                ? R.string.full_screen_on : R.string.full_screen_off);
+        tvFullScreenState.setTextColor(ThemeColors.get(this,
+                allowed ? R.attr.sipAccentText : R.attr.sipWarning));
+        tvFullScreenAction.setText(allowed ? "" : getString(R.string.full_screen_action));
+        rowFullScreen.setClickable(!allowed);
+    }
+
+    private boolean canUseFullScreenIntent() {
+        if (Build.VERSION.SDK_INT < 34) {
+            return true;
+        }
+        NotificationManager nm =
+                (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
+        if (nm == null) {
+            return false;
+        }
+        try {
+            Method method = NotificationManager.class.getMethod("canUseFullScreenIntent");
+            Object result = method.invoke(nm);
+            return result instanceof Boolean && (Boolean) result;
+        } catch (ReflectiveOperationException | RuntimeException e) {
+            return false;
+        }
+    }
+
+    private void openFullScreenSettings() {
+        if (Build.VERSION.SDK_INT < 34) {
+            return;
+        }
+        try {
+            startActivity(new Intent(
+                    Settings.ACTION_MANAGE_APP_USE_FULL_SCREEN_INTENT,
+                    Uri.parse("package:" + getPackageName())));
+        } catch (RuntimeException e) {
+            try {
+                startActivity(new Intent(
+                        Settings.ACTION_APPLICATION_DETAILS_SETTINGS,
+                        Uri.parse("package:" + getPackageName())));
+            } catch (RuntimeException ignored) {
+                // Nothing else we can do.
+            }
+        }
     }
 
     private void applyInsets() {
