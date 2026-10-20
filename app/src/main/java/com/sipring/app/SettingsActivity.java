@@ -36,8 +36,8 @@ public class SettingsActivity extends Activity {
     private Switch switchStrong;
     private LinearLayout rowFullScreen;
     private ScrollView scroll;
-    private String versionName = "0.0.5";
-    private int versionCode = 5;
+    private String versionName = "0.0.6";
+    private int versionCode = 6;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -293,3 +293,4 @@ public class SettingsActivity extends Activity {
         return Math.round(value * getResources().getDisplayMetrics().density);
     }
 }
+

@@ -8,7 +8,6 @@ import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
-import android.content.pm.ServiceInfo;
 import android.media.AudioAttributes;
 import android.os.Binder;
 import android.os.Build;
@@ -48,7 +47,7 @@ public class TimerService extends Service {
     public static final String EXTRA_WINDOW_END = "extra_window_end";
 
     private static final String CHANNEL_TIMER = "sipring_timer";
-    private static final String CHANNEL_REMINDER = "sipring_reminder";
+    private static final String CHANNEL_REMINDER = "sipring_reminder_v2";
     private static final int NOTIF_TIMER_ID = 1000;
     private static final int NOTIF_REMINDER_ID = 1001;
     private static final int ALARM_REQUEST_CODE = 41;
@@ -489,19 +488,9 @@ public class TimerService extends Service {
     private void ensureForeground() {
         try {
             Notification notification = buildTimerNotification();
-            if (Build.VERSION.SDK_INT >= 34) {
-                try {
-                    Method method = Service.class.getMethod(
-                            "startForeground", int.class, Notification.class, int.class);
-                    method.invoke(this, NOTIF_TIMER_ID, notification,
-                            ServiceInfo.FOREGROUND_SERVICE_TYPE_SPECIAL_USE);
-                } catch (ReflectiveOperationException | RuntimeException e) {
-                    Log.w(TAG, "Typed foreground start unavailable", e);
-                    startForeground(NOTIF_TIMER_ID, notification);
-                }
-            } else {
-                startForeground(NOTIF_TIMER_ID, notification);
-            }
+            // targetSdk 33 keeps the 2-argument form valid on Android 14+ and
+            // avoids OEM-specific specialUse FGS failures.
+            startForeground(NOTIF_TIMER_ID, notification);
             foregroundStarted = true;
         } catch (RuntimeException e) {
             // A background start can be rejected on some OEM builds. The exact
@@ -628,6 +617,13 @@ public class TimerService extends Service {
         } catch (RuntimeException e) {
             Log.w(TAG, "Unable to post reminder", e);
         }
+        if (SipRingApplication.isForeground()) {
+            try {
+                startActivity(reminderIntent);
+            } catch (RuntimeException e) {
+                Log.w(TAG, "Unable to open reminder activity", e);
+            }
+        }
         acquireWakeLock();
     }
 
@@ -748,16 +744,24 @@ public class TimerService extends Service {
         reminder.setDescription(getString(R.string.notif_channel_reminder_desc));
         reminder.setShowBadge(true);
         reminder.enableVibration(true);
-        reminder.setVibrationPattern(new long[]{0L, 260L, 140L, 260L});
+        reminder.setVibrationPattern(new long[]{
+                0L, 500L, 220L, 500L, 220L, 900L, 220L, 900L, 220L, 1400L
+        });
         reminder.enableLights(true);
         reminder.setLightColor(ThemeManager.notificationAccent(this));
         reminder.setLockscreenVisibility(Notification.VISIBILITY_PUBLIC);
         AudioAttributes audio = new AudioAttributes.Builder()
-                .setUsage(AudioAttributes.USAGE_NOTIFICATION)
+                .setUsage(AudioAttributes.USAGE_ALARM)
                 .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
                 .build();
-        reminder.setSound(Settings.System.DEFAULT_NOTIFICATION_URI, audio);
+        reminder.setSound(Settings.System.DEFAULT_ALARM_ALERT_URI, audio);
         nm.createNotificationChannel(reminder);
+        // Remove the older, quieter channel from pre-0.0.6 installs.
+        try {
+            nm.deleteNotificationChannel("sipring_reminder");
+        } catch (RuntimeException ignored) {
+            // Nothing to delete.
+        }
     }
 
     private String windowLabel() {

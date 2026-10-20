@@ -2,6 +2,23 @@
 
 All notable changes to SipRing are documented here.
 
+## [0.0.6] — 2026-10-20
+
+Foreground-page reminder fix. `versionCode 6`.
+
+### Fixed
+
+- 修复停留在 SipRing 的设置页、测试页等「别的页面」时，到点只依赖通知、页面不弹出的问题。
+- 应用内任意 Activity 处于前台时，计时到点会直接打开全屏强提醒页，不再等待系统通知。
+- 应用在后台时，继续使用全屏 Intent + 高优先级通知 + 震动提醒。
+- `targetSdk` 调整为 33，前台服务改用兼容的 2 参数 `startForeground()`，避开 Android 14+ `specialUse` 前台服务在部分 OEM 上启动失败、切后台后服务被回收的问题。
+- 提醒通知渠道升级为警报音量 + 更长的震动序列；旧的低强度渠道会在升级后移除。
+- 新增应用前后台状态跟踪（`SipRingApplication`），只影响提醒的展示方式，不改变计时和闹钟。
+
+### Tests
+
+- 全部 18 个启动/主题/对话框/渲染测试继续通过，覆盖 API 26 / 29 / 31 / 33 / 34。
+
 ## [0.0.5] — 2026-10-20
 
 Strong-reminder release. `versionCode 5`.

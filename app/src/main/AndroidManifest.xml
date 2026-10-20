@@ -8,7 +8,6 @@
 
     <!-- A foreground timer keeps the countdown alive while the screen is off. -->
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
-    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_SPECIAL_USE" />
     <uses-permission android:name="android.permission.WAKE_LOCK" />
 
     <!-- Exact alarms make the reminder land on time even in Doze. -->
@@ -22,6 +21,7 @@
         android:required="false" />
 
     <application
+        android:name=".SipRingApplication"
         android:allowBackup="false"
         android:dataExtractionRules="@xml/data_extraction_rules"
         android:fullBackupContent="@xml/backup_rules"
@@ -62,12 +62,7 @@
         <service
             android:name=".TimerService"
             android:exported="false"
-            android:foregroundServiceType="specialUse"
-            android:stopWithTask="false">
-            <property
-                android:name="android.app.PROPERTY_SPECIAL_USE_FGS_SUBTYPE"
-                android:value="Interval-based drinking-water reminder with a countdown timer." />
-        </service>
+            android:stopWithTask="false" />
     </application>
 
 </manifest>

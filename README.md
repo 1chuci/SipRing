@@ -1,6 +1,6 @@
 # SipRing · 喝水提醒
 
-> **v0.0.5** · 一个会认真提醒你喝水的小应用。  
+> **v0.0.6** · 一个会认真提醒你喝水的小应用。  
 > Android 8.0+（minSdk 26）· 原生 Java · 无网络权限 · 无第三方 UI 依赖
 
 <p align="center">
@@ -52,10 +52,10 @@ SipRing 只做一件事：在你设定的时间间隔和时段里，用通知提
 APK 位于：
 
 ```text
-dist/SipRing-0.0.5.apk
+dist/SipRing-0.0.6.apk
 ```
 
-直接下载：[`dist/SipRing-0.0.5.apk`](dist/SipRing-0.0.5.apk)
+直接下载：[`dist/SipRing-0.0.6.apk`](dist/SipRing-0.0.6.apk)
 
 1. 把 APK 发到手机（微信文件传输、数据线、网盘均可）。
 2. 点击安装；如系统提示「禁止未知来源」，允许当前文件管理器安装。
@@ -73,7 +73,7 @@ dist/SipRing-0.0.5.apk
 也可以使用 adb：
 
 ```bash
-adb install -r dist/SipRing-0.0.5.apk
+adb install -r dist/SipRing-0.0.6.apk
 ```
 
 > APK 使用仓库内的 `keystore/sipring-dev.jks` 开发签名。它可以正常侧载和覆盖升级；如果以后要上架应用商店，请换成自己的私密签名，不要继续使用这个仓库密钥。  
@@ -82,6 +82,7 @@ adb install -r dist/SipRing-0.0.5.apk
 ## 行为说明
 
 - **全屏强提醒**：到点后会使用全屏 Intent 点亮屏幕并打开强提醒页面，同时持续震动最多 20 秒。锁屏时直接全屏；未锁屏时系统通常会先显示高亮通知，点开即进入同一页面。
+- **应用内任意页面**：即使停留在设置页或其他 SipRing 页面，到点也会直接打开全屏提醒，不再只依赖系统通知。
 - **Android 14 全屏权限**：设置页「提醒强度」会显示全屏提醒权限状态，未允许时可点「去允许」。即使未允许，高优先级通知和震动仍会保留。
 - **划掉后台会停止**：这是刻意设计。`TimerService.onTaskRemoved()` 会取消计时、取消 AlarmManager 闹钟并清除通知。没有开机自启，也没有「被划掉后偷偷复活」。
 - **锁屏 / 息屏**：前台服务保持计时；同时用 `AlarmManager.setExactAndAllowWhileIdle()` 做兜底。部分厂商的省电策略仍可能延迟通知，建议允许高耗电和自启动。
@@ -200,17 +201,17 @@ SipRing/
 
 ## 版本
 
-当前版本 **0.0.5**（versionCode `5`）。
+当前版本 **0.0.6**（versionCode `6`）。
 
 更新记录见 [CHANGELOG.md](CHANGELOG.md)。
 
 ## 已知限制
 
 - 已用 Robolectric 在 API 26 / 29 / 31 / 33 / 34 上跑过 `MainActivity`、`SettingsActivity` 与 `TimerService` 启动测试；但构建环境没有真机或模拟器，尚未完成真机端到端测试。
-- 如果启动阶段遇到平台或厂商异常，0.0.5 会显示「SipRing 启动失败」错误页，而不是直接闪退；可以把错误页截图或「复制错误信息」的内容发回来。
+- 如果启动阶段遇到平台或厂商异常，0.0.6 会显示「SipRing 启动失败」错误页，而不是直接闪退；可以把错误页截图或「复制错误信息」的内容发回来。
 - 部分国产 ROM 会杀掉前台服务。SipRing 已尽量申请所需权限，但最终仍受系统策略影响。
 - 应用锁定竖屏，主要针对手机；平板会以竖屏居中显示。
-- 0.0.5 用前台服务 + 单次精确闹钟维持计时，没有做 WorkManager 链式补偿。
+- 0.0.6 用前台服务 + 单次精确闹钟维持计时，没有做 WorkManager 链式补偿。
 
 ## 回归测试
 
@@ -223,6 +224,8 @@ SipRing/
 ## License
 
 [MIT](LICENSE)
+
+
 
 
 
