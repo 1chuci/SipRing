@@ -76,8 +76,10 @@ dist/SipRing-0.0.7.apk
 adb install -r dist/SipRing-0.0.7.apk
 ```
 
-> APK 使用仓库内的 `keystore/sipring-dev.jks` 开发签名。它可以正常侧载和覆盖升级；如果以后要上架应用商店，请换成自己的私密签名，不要继续使用这个仓库密钥。  
-> **公开仓库安全提示**：密钥和密码目前随仓库提供，任何拿到仓库的人都能签出可以被系统当作「同一应用」的更新。如果这个仓库会公开，建议后续把 `keystore.properties` 与 `.jks` 移到 GitHub Secrets，并为新版本更换签名（更换后无法直接覆盖安装旧版本）。
+> **关于签名**：本仓库包含开发用签名密钥 `keystore/sipring-dev.jks` 及其密码，只用于让 clone 下来的人可以直接 `assembleRelease` 出可安装的 APK，以及让后续版本能覆盖安装旧版本。  
+> 这是公开的开发密钥，**不要用它发布正式版本**。如需正式分发，请自行生成私密密钥替换 `keystore.properties`；更换签名后，用户需要先卸载旧版才能安装。
+>
+> 仓库不含任何网络 API 密钥或第三方服务凭据。SipRing 本身不联网、不申请 `INTERNET` 权限，所有数据只存在本机。
 
 ## 行为说明
 
