@@ -1,6 +1,6 @@
 # SipRing · 喝水提醒
 
-> **v0.0.7** · 一个会认真提醒你喝水的小应用。  
+> **v0.0.8** · 一个会认真提醒你喝水的小应用。  
 > Android 8.0+（minSdk 26）· 原生 Java · 无网络权限 · 无第三方 UI 依赖
 
 <p align="center">
@@ -41,6 +41,7 @@ SipRing 只做一件事：在你设定的时间间隔和时段里，用通知提
 | 精准闹钟 | Android 12+ 可授权精准闹钟，尽量保证 Doze 下准时 |
 | 允许高耗电 | 一键跳转「忽略电池优化」，减少系统拦截 |
 | 划掉即停止 | 从最近任务划掉 SipRing 后，计时、闹钟、通知全部停止 |
+| 重启恢复 | 重启手机或升级应用后，若计时仍在进行，会自动恢复提醒 |
 | 外观设置 | 跟随系统 / 浅色 / 深色，立即切换 |
 | 主题色 | 青碧 / 海蓝 / 雾紫 / 暖金 / 玫瑰，圆环、按钮和强调色一起变化 |
 | 关于与隐私 | 应用名称、版本号、本地运行隐私声明 |
@@ -52,10 +53,10 @@ SipRing 只做一件事：在你设定的时间间隔和时段里，用通知提
 APK 位于：
 
 ```text
-dist/SipRing-0.0.7.apk
+dist/SipRing-0.0.8.apk
 ```
 
-直接下载：[`dist/SipRing-0.0.7.apk`](dist/SipRing-0.0.7.apk)
+直接下载：[`dist/SipRing-0.0.8.apk`](dist/SipRing-0.0.8.apk)
 
 1. 把 APK 发到手机（微信文件传输、数据线、网盘均可）。
 2. 点击安装；如系统提示「禁止未知来源」，允许当前文件管理器安装。
@@ -73,7 +74,7 @@ dist/SipRing-0.0.7.apk
 也可以使用 adb：
 
 ```bash
-adb install -r dist/SipRing-0.0.7.apk
+adb install -r dist/SipRing-0.0.8.apk
 ```
 
 > **关于签名**：本仓库包含开发用签名密钥 `keystore/sipring-dev.jks` 及其密码，只用于让 clone 下来的人可以直接 `assembleRelease` 出可安装的 APK，以及让后续版本能覆盖安装旧版本。  
@@ -86,9 +87,9 @@ adb install -r dist/SipRing-0.0.7.apk
 - **全屏强提醒**：到点后会使用全屏 Intent 点亮屏幕并打开强提醒页面，同时持续震动最多 20 秒。锁屏时直接全屏；未锁屏时系统通常会先显示高亮通知，点开即进入同一页面。
 - **应用内任意页面**：即使停留在设置页或其他 SipRing 页面，到点也会直接打开全屏提醒，不再只依赖系统通知。
 - **Android 14 全屏权限**：设置页「提醒强度」会显示全屏提醒权限状态，未允许时可点「去允许」。即使未允许，高优先级通知和震动仍会保留。
-- **划掉后台会停止**：这是刻意设计。`TimerService.onTaskRemoved()` 会取消计时、取消 AlarmManager 闹钟并清除通知。没有开机自启，也没有「被划掉后偷偷复活」。
+- **划掉后台会停止**：这是刻意设计。`TimerService.onTaskRemoved()` 会取消计时、取消 AlarmManager 闹钟并清除通知，没有「被划掉后偷偷复活」。
+- **重启手机会恢复**：注册了 `BOOT_COMPLETED` 接收器。如果计时仍在进行，重启后会自动恢复提醒并重新安排闹钟；如果计时已结束或已划掉，则不会唤醒。应用升级（`MY_PACKAGE_REPLACED`）时同样会恢复。
 - **锁屏 / 息屏**：前台服务保持计时；同时用 `AlarmManager.setExactAndAllowWhileIdle()` 做兜底。部分厂商的省电策略仍可能延迟通知，建议允许高耗电和自启动。
-- **重启手机**：没有 BOOT_COMPLETED 接收器，所以重启后不会自动恢复提醒；重新打开 App 即可。这样可以避免「划掉后台后还被唤醒」的歧义。
 - **时段边界**：如果下一次提醒落在免打扰时段之外，会顺延到下一个时段开始后再加一个间隔。例如 08:00–22:00、30 分钟，21:50 开始的下一杯会安排在次日 08:30，而不是 22:20。
 - **长间隔跨时段**：例如 120 分钟间隔在 20:40 开始，下一次提醒会跨到次日。圆环会显示「下次提醒 · 明天 10:00」和「已避开提醒时段」，不会显示成 13 个多小时的倒计时；进度环按实际等待时长消退。
 - **通知权限被拒绝**：计时仍会运行，但系统不会展示提醒；首页会持续显示「未开启」。
@@ -114,7 +115,8 @@ adb install -r dist/SipRing-0.0.7.apk
 | 权限 | 用途 |
 | --- | --- |
 | `POST_NOTIFICATIONS` | Android 13+ 显示喝水提醒和计时通知 |
-| `FOREGROUND_SERVICE` / `FOREGROUND_SERVICE_SPECIAL_USE` | 计时前台服务 |
+| `FOREGROUND_SERVICE` | 计时前台服务 |
+| `RECEIVE_BOOT_COMPLETED` | 重启后恢复进行中的计时 |
 | `WAKE_LOCK` | 提醒触发时短暂唤醒 CPU，保证通知送达 |
 | `VIBRATE` | 提醒震动 |
 | `SCHEDULE_EXACT_ALARM` | Android 12+ 精准闹钟；拒绝后自动退化为近似闹钟 |
@@ -203,17 +205,17 @@ SipRing/
 
 ## 版本
 
-当前版本 **0.0.7**（versionCode `7`）。
+当前版本 **0.0.8**（versionCode `8`）。
 
 更新记录见 [CHANGELOG.md](CHANGELOG.md)。
 
 ## 已知限制
 
-- 已用 Robolectric 在 API 26 / 29 / 31 / 33 / 34 上跑过 `MainActivity`、`SettingsActivity` 与 `TimerService` 启动测试；但构建环境没有真机或模拟器，尚未完成真机端到端测试。
-- 如果启动阶段遇到平台或厂商异常，0.0.7 会显示「SipRing 启动失败」错误页，而不是直接闪退；可以把错误页截图或「复制错误信息」的内容发回来。
+- 已用 Robolectric 在 API 26 / 29 / 31 / 33 / 34 上跑过 `MainActivity`、`SettingsActivity`、`TimerService` 与 `BootReceiver` 启动测试；但构建环境没有真机或模拟器，尚未完成真机端到端测试。
+- 如果启动阶段遇到平台或厂商异常，0.0.8 会显示「SipRing 启动失败」错误页，而不是直接闪退；可以把错误页截图或「复制错误信息」的内容发回来。
 - 部分国产 ROM 会杀掉前台服务。SipRing 已尽量申请所需权限，但最终仍受系统策略影响。
 - 应用锁定竖屏，主要针对手机；平板会以竖屏居中显示。
-- 0.0.7 用前台服务 + 单次精确闹钟维持计时，没有做 WorkManager 链式补偿。
+- 0.0.8 用前台服务 + 单次精确闹钟 + `BOOT_COMPLETED` 接收器维持计时；部分厂商对开机自启有额外限制，重启恢复可能被系统拦截，打开一次 App 即可继续。
 
 ## 回归测试
 
@@ -221,7 +223,7 @@ SipRing/
 ./gradlew testDebugUnitTest
 ```
 
-测试覆盖 `MainActivity`、`SettingsActivity` 启动，`TimerService` 创建，浅色/深色/强调色主题加载，资源/主题加载和通知渠道创建，运行在 API 26 / 29 / 31 / 33 / 34。
+测试覆盖 `MainActivity`、`SettingsActivity` 启动，`TimerService` 创建，`BootReceiver` 重启恢复，浅色/深色/强调色主题加载，资源/主题加载和通知渠道创建，运行在 API 26 / 29 / 31 / 33 / 34。
 
 ## License
 

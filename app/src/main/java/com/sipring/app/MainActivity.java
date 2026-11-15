@@ -46,7 +46,6 @@ import android.widget.Toast;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
-import java.lang.reflect.Method;
 
 /** Single-screen SipRing experience. */
 public class MainActivity extends Activity {
@@ -86,7 +85,7 @@ public class MainActivity extends Activity {
     private int uiWindowStart = -1;
     private int uiWindowEnd = -1;
     private long lastTapAt;
-    private String versionName = "0.0.7";
+    private String versionName = "0.0.8";
     private boolean uiReady;
     private String appliedThemeSignature = "";
 
@@ -675,7 +674,7 @@ public class MainActivity extends Activity {
 
         if (Build.VERSION.SDK_INT >= 31) {
             AlarmManager am = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
-            boolean exact = canScheduleExactAlarms(am);
+            boolean exact = SystemChecks.canScheduleExactAlarms(am);
             tvAlarmState.setText(exact
                     ? R.string.permission_alarm_on : R.string.permission_alarm_off);
             tvAlarmState.setTextColor(exact ? onColor : offColor);
@@ -686,23 +685,6 @@ public class MainActivity extends Activity {
             tvAlarmState.setTextColor(neutralColor);
             tvAlarmAction.setText("");
             rowAlarm.setClickable(false);
-        }
-    }
-
-    /**
-     * Reflection keeps this method off the launch path on Android 8–11, where
-     * AlarmManager#canScheduleExactAlarms does not exist yet.
-     */
-    private boolean canScheduleExactAlarms(AlarmManager alarmManager) {
-        if (Build.VERSION.SDK_INT < 31 || alarmManager == null) {
-            return false;
-        }
-        try {
-            Method method = AlarmManager.class.getMethod("canScheduleExactAlarms");
-            Object result = method.invoke(alarmManager);
-            return result instanceof Boolean && (Boolean) result;
-        } catch (ReflectiveOperationException | RuntimeException e) {
-            return false;
         }
     }
 

@@ -109,6 +109,7 @@
     <string name="notif_channel_reminder_desc">到点提醒你喝水</string>
     <string name="notif_timer_title">SipRing 正在计时</string>
     <string name="notif_timer_running">每 %1$d 分钟 · %2$s · 点按暂停</string>
+    <string name="notif_timer_shifted">每 %1$d 分钟 · 下次 %2$s · 点按暂停</string>
     <string name="notif_timer_paused">已暂停 · 点按继续</string>
     <string name="notif_timer_pause">暂停</string>
     <string name="notif_timer_resume">继续</string>

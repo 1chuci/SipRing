@@ -16,6 +16,9 @@
     <!-- Optional: ask the system to stop battery-optimising SipRing. -->
     <uses-permission android:name="android.permission.REQUEST_IGNORE_BATTERY_OPTIMIZATIONS" />
 
+    <!-- Resume an in-progress timer after reboot / app update. -->
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+
     <uses-feature
         android:name="android.hardware.touchscreen"
         android:required="false" />
@@ -63,6 +66,15 @@
             android:name=".TimerService"
             android:exported="false"
             android:stopWithTask="false" />
+
+        <receiver
+            android:name=".BootReceiver"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+                <action android:name="android.intent.action.MY_PACKAGE_REPLACED" />
+            </intent-filter>
+        </receiver>
     </application>
 
 </manifest>

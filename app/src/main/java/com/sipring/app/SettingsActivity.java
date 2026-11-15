@@ -36,8 +36,8 @@ public class SettingsActivity extends Activity {
     private Switch switchStrong;
     private LinearLayout rowFullScreen;
     private ScrollView scroll;
-    private String versionName = "0.0.7";
-    private int versionCode = 7;
+    private String versionName = "0.0.8";
+    private int versionCode = 8;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

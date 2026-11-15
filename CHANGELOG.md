@@ -2,6 +2,27 @@
 
 All notable changes to SipRing are documented here.
 
+## [0.0.8] — 2026-11-15
+
+Reliability and battery polish. `versionCode 8`.
+
+### Added
+
+- **重启恢复**：新增 `BootReceiver`，监听 `BOOT_COMPLETED` 与 `MY_PACKAGE_REPLACED`。计时进行中时，重启手机或升级应用后会自动恢复提醒并重新安排精确闹钟；未运行或已划掉则不会唤醒。
+- 新增 `RECEIVE_BOOT_COMPLETED` 权限，以及 `BootReceiver` 的三条回归测试（未运行时静默、运行时恢复、升级时恢复）。
+
+### Changed
+
+- **后台省电**：每秒一次的主线程 ticker 只在 UI 绑定服务时运行；切到后台或锁屏后由通知倒计时与 `AlarmManager` 接管，避免后台每秒空转。
+- **通知跨时段显示**：被顺延到次日的提醒，通知栏不再显示成十几个小时的倒计时，改为「每 N 分钟 · 下次 明天 HH:mm」。
+- **重构**：抽取 `SystemChecks.canScheduleExactAlarms()` 公共工具，去掉 `TimerService` 与 `MainActivity` 中重复的反射代码。
+- **边界处理**：`handleDue` 不再用最多 500 次的追赶循环，改为从当前时间直接调度下一次；`scheduleAfter` 补充「时段短于间隔」时的回退注释。
+- **通知渠道**：`createChannelsSafely()` 每次服务实例只创建一次，避免每次 `onStartCommand` 重复删除/重建渠道。
+
+### Tests
+
+- 全部 21 个启动/主题/对话框/渲染/重启恢复测试通过，覆盖 API 26 / 29 / 31 / 33 / 34。
+
 ## [0.0.7] — 2026-10-20
 
 One-minute minimum interval. `versionCode 7`.

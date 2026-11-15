@@ -66,6 +66,8 @@ public class TimerService extends Service {
 
     private PowerManager.WakeLock wakeLock;
     private boolean foregroundStarted;
+    private boolean channelsCreated;
+    private boolean uiBound;
 
     private final Runnable tick = new Runnable() {
         @Override
@@ -239,7 +241,19 @@ public class TimerService extends Service {
 
     @Override
     public IBinder onBind(Intent intent) {
+        // The per-second tick only matters while a screen is watching the ring.
+        // When backgrounded, the notification chronometer and AlarmManager carry
+        // the countdown, so we can stop waking the main looper every second.
+        uiBound = true;
+        startTicker();
         return binder;
+    }
+
+    @Override
+    public boolean onUnbind(Intent intent) {
+        uiBound = false;
+        stopTicker();
+        return false;
     }
 
     @Override
@@ -416,11 +430,11 @@ public class TimerService extends Service {
         }
 
         long intervalMs = Math.max(60_000L, intervalMinutes * 60_000L);
-        long next = scheduleAfter(targetWall, intervalMs);
-        int guard = 0;
-        while (next <= now && guard++ < 500) {
-            next = scheduleAfter(next, intervalMs);
-        }
+        // scheduleAfter always returns a time strictly after its "from" argument,
+        // so clamping the base to "now" skips any catch-up walking when the
+        // target is stale (e.g. the device was off across a reboot). We never
+        // fire a burst of missed reminders; we schedule the single next one.
+        long next = scheduleAfter(Math.max(targetWall, now), intervalMs);
         targetWall = next;
         totalMs = Math.max(intervalMs, Math.max(0L, targetWall - now));
         remainingMs = Math.max(0L, targetWall - now);
@@ -438,6 +452,11 @@ public class TimerService extends Service {
         if (inWindow(candidate)) {
             return candidate;
         }
+        // Candidate falls outside the quiet-hours window: slide it to the next
+        // window start, then re-add one full interval. When the interval itself
+        // is longer than the whole window (e.g. 08:00–08:05 with a 120-minute
+        // interval), "nextStart + delay" can never land inside the window, so we
+        // fall back to firing once at the next window start instead of looping.
         long nextStart = nextWindowStart(candidate);
         long shifted = nextStart + delay;
         return inWindow(shifted) ? shifted : nextStart;
@@ -472,7 +491,7 @@ public class TimerService extends Service {
 
     private void startTicker() {
         handler.removeCallbacks(tick);
-        if (running && !paused) {
+        if (running && !paused && uiBound) {
             handler.post(tick);
         }
     }
@@ -519,22 +538,28 @@ public class TimerService extends Service {
                 .setSmallIcon(R.drawable.ic_stat_drop)
                 .setColor(ThemeManager.notificationAccent(this))
                 .setContentTitle(getString(R.string.notif_timer_title))
-                .setContentText(paused
-                        ? getString(R.string.notif_timer_paused)
-                        : getString(R.string.notif_timer_running, intervalMinutes, window))
                 .setContentIntent(openAppIntent())
                 .setOngoing(true)
                 .setOnlyAlertOnce(true)
                 .setCategory(Notification.CATEGORY_PROGRESS)
                 .setVisibility(Notification.VISIBILITY_PUBLIC);
 
-        if (!paused) {
-            builder.setWhen(targetWall)
+        if (paused) {
+            builder.setContentText(getString(R.string.notif_timer_paused))
+                    .setShowWhen(false);
+        } else if (isShiftedWait()) {
+            // A quiet-hours shift can push the next reminder to the next day.
+            // A 13-hour chronometer here would reproduce the exact confusion the
+            // ring already fixes, so show the concrete target time instead.
+            builder.setContentText(getString(R.string.notif_timer_shifted,
+                    intervalMinutes, nextReminderLabel()))
+                    .setShowWhen(false);
+        } else {
+            builder.setContentText(getString(R.string.notif_timer_running, intervalMinutes, window))
+                    .setWhen(targetWall)
                     .setUsesChronometer(true)
                     .setChronometerCountDown(true)
                     .setShowWhen(true);
-        } else {
-            builder.setShowWhen(false);
         }
 
         PendingIntent pauseOrResume = PendingIntent.getService(
@@ -658,7 +683,7 @@ public class TimerService extends Service {
         long triggerAt = Math.max(System.currentTimeMillis() + 1_000L, targetWall);
         PendingIntent pi = alarmIntent();
         try {
-            if (Build.VERSION.SDK_INT >= 31 && !canScheduleExactAlarms(am)) {
+            if (Build.VERSION.SDK_INT >= 31 && !SystemChecks.canScheduleExactAlarms(am)) {
                 am.setAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, triggerAt, pi);
             } else {
                 am.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, triggerAt, pi);
@@ -714,8 +739,12 @@ public class TimerService extends Service {
     }
 
     private void createChannelsSafely() {
+        if (channelsCreated) {
+            return;
+        }
         try {
             createChannels();
+            channelsCreated = true;
         } catch (RuntimeException e) {
             Log.e(TAG, "Unable to create notification channels", e);
         }
@@ -773,6 +802,18 @@ public class TimerService extends Service {
                 windowEnd / 60, windowEnd % 60);
     }
 
+    /**
+     * Mirrors {@link TimerRingView#isShifted()}: true when the next reminder has
+     * been pushed past one full interval by the quiet-hours window, meaning the
+     * remaining wait is noticeably longer than the configured interval.
+     */
+    private boolean isShiftedWait() {
+        if (!running || paused) {
+            return false;
+        }
+        return targetWall - System.currentTimeMillis() > intervalMinutes * 60_000L + 60_000L;
+    }
+
     private String nextReminderLabel() {
         long delta = Math.max(0L, targetWall - System.currentTimeMillis());
         if (delta < 3_600_000L) {
@@ -788,19 +829,6 @@ public class TimerService extends Service {
                 target.get(Calendar.HOUR_OF_DAY), target.get(Calendar.MINUTE));
         return getString(sameDay ? R.string.notif_next_today : R.string.notif_next_tomorrow,
                 clock);
-    }
-
-    private boolean canScheduleExactAlarms(AlarmManager alarmManager) {
-        if (Build.VERSION.SDK_INT < 31 || alarmManager == null) {
-            return false;
-        }
-        try {
-            Method method = AlarmManager.class.getMethod("canScheduleExactAlarms");
-            Object result = method.invoke(alarmManager);
-            return result instanceof Boolean && (Boolean) result;
-        } catch (ReflectiveOperationException | RuntimeException e) {
-            return false;
-        }
     }
 
     private void setForegroundImmediate(Notification.Builder builder) {
