@@ -50,13 +50,12 @@ SipRing 只做一件事：在你设定的时间间隔和时段里，用通知提
 
 ## 安装
 
-APK 位于：
+从 GitHub Releases 下载最新 APK：
 
-```text
-dist/SipRing-0.0.8.apk
-```
+- 最新版下载页：<https://github.com/1chuci/SipRing/releases/latest>
+- 直接下载 APK：[`SipRing-0.0.8.apk`](https://github.com/1chuci/SipRing/releases/download/v0.0.8/SipRing-0.0.8.apk)
 
-直接下载：[`dist/SipRing-0.0.8.apk`](dist/SipRing-0.0.8.apk)
+> 也可自行构建：APK 在仓库 `dist/SipRing-0.0.8.apk`，或用 `./gradlew assembleRelease` 生成（开发签名见下方说明）。
 
 1. 把 APK 发到手机（微信文件传输、数据线、网盘均可）。
 2. 点击安装；如系统提示「禁止未知来源」，允许当前文件管理器安装。
@@ -74,7 +73,7 @@ dist/SipRing-0.0.8.apk
 也可以使用 adb：
 
 ```bash
-adb install -r dist/SipRing-0.0.8.apk
+adb install -r SipRing-0.0.8.apk
 ```
 
 > **关于签名**：本仓库包含开发用签名密钥 `keystore/sipring-dev.jks` 及其密码，只用于让 clone 下来的人可以直接 `assembleRelease` 出可安装的 APK，以及让后续版本能覆盖安装旧版本。  
